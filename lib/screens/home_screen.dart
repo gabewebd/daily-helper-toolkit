@@ -4,12 +4,18 @@ import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/app_theme.dart';
 
+// ADDED: Imports for the modules and abstract class (Polymorphism)
+import '../core/tool_module.dart';
+import '../modules/bmi_module.dart';
+import '../modules/study_timer_module.dart';
+import '../modules/grade_calculator_module.dart';
+
 /// AcadBaseShell — Ang main visual container ng ating Daily Helper.
-/// Ginamit natin ang 'Shell' terminology dahil ito ang nagsisilbing 
+/// Ginamit natin ang 'Shell' terminology dahil ito ang nagsisilbing
 /// host para sa iba't ibang modules ng team.
 class HomeScreen extends StatefulWidget {
   final String userHandle; // Ginamit ang 'handle' para sa personalization
-  final Color baseAura;    // Base color mula sa AcadBalance manifest
+  final Color baseAura; // Base color mula sa AcadBalance manifest
 
   const HomeScreen({
     super.key,
@@ -27,20 +33,21 @@ class _AcadBaseShellState extends State<HomeScreen> {
   late Color _currentAura;
 
   // Nilagay natin sa Registry format para madaling i-maintain
-  final List<Map<String, dynamic>> _toolkitRegistry = [
-    {'label': 'BMI Calculator', 'icon': Icons.monitor_weight_outlined},
-    {'label': 'Study Timer', 'icon': Icons.timer_outlined},
-    {'label': 'Grade Calculator', 'icon': Icons.school_outlined},
-  ];
+  // UPDATED (Step 5): Polymorphic Collection of Modules
+  late final List<ToolModule> _modules;
 
   @override
   void initState() {
     super.initState();
     _currentAura = widget.baseAura;
+
+    // UPDATED: Pag-instantiate ng ating modules imbes na hardcoded Map
+    _modules = [BmiModule(), StudyTimerModule(), GradeCalculatorModule()];
   }
 
   // Helper para makuha ang dynamic gradient base sa active vibe
-  LinearGradient get _activeGradient => AcadBalance.mapSpectrumToGradient(_currentAura);
+  LinearGradient get _activeGradient =>
+      AcadBalance.mapSpectrumToGradient(_currentAura);
 
   @override
   Widget build(BuildContext context) {
@@ -51,14 +58,14 @@ class _AcadBaseShellState extends State<HomeScreen> {
       debugShowCheckedModeBanner: false,
       theme: shellTheme,
       home: Scaffold(
-        backgroundColor: shellTheme.scaffoldBackgroundColor, 
+        backgroundColor: shellTheme.scaffoldBackgroundColor,
         body: SafeArea(
           bottom: false,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _forgeHeader(context),
-              
+
               // === MODULE VIEWPORT ===
               // Dito natin "isinasalpak" ang logic ng ating mga MMODULES
               Expanded(
@@ -78,10 +85,23 @@ class _AcadBaseShellState extends State<HomeScreen> {
                       ),
                     );
                   },
+                  // FIX APPLIED HERE: Added layoutBuilder with StackFit.expand
+                  // to provide bounded constraints for the StudyTimer's Expanded widgets.
+                  layoutBuilder:
+                      (Widget? currentChild, List<Widget> previousChildren) {
+                        return Stack(
+                          fit: StackFit.expand,
+                          alignment: Alignment.topCenter,
+                          children: <Widget>[
+                            ...previousChildren,
+                            if (currentChild != null) currentChild,
+                          ],
+                        );
+                      },
                   child: _assembleActiveModule(),
                 ),
               ),
-              
+
               // Ang ating responsive floating navigation
               _craftResponsiveNav(),
             ],
@@ -94,12 +114,12 @@ class _AcadBaseShellState extends State<HomeScreen> {
   /// _assembleActiveModule — Ang logic provider para sa bawat tab.
   /// Kapag tapos na ang modules, i-re-replace natin itong switch.
   Widget _assembleActiveModule() {
-    switch (_activeToolIdx) {
-      case 0: return Container(key: const ValueKey('bmi_stub')); 
-      case 1: return Container(key: const ValueKey('timer_stub'));
-      case 2: return Container(key: const ValueKey('grade_stub'));
-      default: return const SizedBox.shrink();
-    }
+    // UPDATED (Step 6): Dynamic Invocation! Pinalitan ang switch statement
+    // ADDED FIX: KeyedSubtree para hindi mag-glitch ang AnimatedSwitcher pag nag-switch ng tabs
+    return KeyedSubtree(
+      key: ValueKey(_activeToolIdx),
+      child: _modules[_activeToolIdx].buildBody(context),
+    );
   }
 
   /// _forgeHeader — Binubuo ang organic top-section ng app.
@@ -137,7 +157,8 @@ class _AcadBaseShellState extends State<HomeScreen> {
                     ),
                   ),
                   ShaderMask(
-                    shaderCallback: (bounds) => _activeGradient.createShader(bounds),
+                    shaderCallback: (bounds) =>
+                        _activeGradient.createShader(bounds),
                     child: Text(
                       widget.userHandle,
                       style: GoogleFonts.figtree(
@@ -160,7 +181,7 @@ class _AcadBaseShellState extends State<HomeScreen> {
                     gradient: _activeGradient,
                     boxShadow: [
                       BoxShadow(
-                        color: _currentAura.withValues(alpha: 0.25),
+                        color: _currentAura.withOpacity(0.25),
                         blurRadius: 15,
                         offset: const Offset(0, 5),
                       ),
@@ -169,9 +190,11 @@ class _AcadBaseShellState extends State<HomeScreen> {
                   padding: const EdgeInsets.all(2.5), // Gradient stroke
                   child: CircleAvatar(
                     radius: 26,
-                    backgroundColor: Colors.white, 
+                    backgroundColor: Colors.white,
                     child: Text(
-                      widget.userHandle.isNotEmpty ? widget.userHandle[0].toUpperCase() : '?',
+                      widget.userHandle.isNotEmpty
+                          ? widget.userHandle[0].toUpperCase()
+                          : '?',
                       style: GoogleFonts.figtree(
                         fontSize: 20,
                         fontWeight: FontWeight.w900,
@@ -184,19 +207,19 @@ class _AcadBaseShellState extends State<HomeScreen> {
             ],
           ),
         ),
-        
+
         // ACCENT ANCHOR LINE
         // Pantay na sa padding na 32 para seamless ang alignment sa text
         AnimatedContainer(
           duration: const Duration(milliseconds: 400),
-          margin: const EdgeInsets.symmetric(horizontal: 32), 
-          height: 3.5, 
+          margin: const EdgeInsets.symmetric(horizontal: 32),
+          height: 3.5,
           decoration: BoxDecoration(
             gradient: _activeGradient,
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: _currentAura.withValues(alpha: 0.3),
+                color: _currentAura.withOpacity(0.3),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -224,11 +247,21 @@ class _AcadBaseShellState extends State<HomeScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(width: 45, height: 5, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(10))),
+              Container(
+                width: 45,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               const SizedBox(height: 32),
               Text(
                 'Change your vibe',
-                style: GoogleFonts.figtree(fontSize: 19, fontWeight: FontWeight.w800),
+                style: GoogleFonts.figtree(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
               const SizedBox(height: 35),
               Row(
@@ -246,12 +279,20 @@ class _AcadBaseShellState extends State<HomeScreen> {
                       padding: EdgeInsets.all(isSelected ? 5 : 0),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: isSelected ? Border.all(color: aura, width: 2.5) : null,
+                        border: isSelected
+                            ? Border.all(color: aura, width: 2.5)
+                            : null,
                       ),
                       child: CircleAvatar(
                         radius: 30,
                         backgroundColor: aura,
-                        child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 30) : null,
+                        child: isSelected
+                            ? const Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 30,
+                              )
+                            : null,
                       ),
                     ),
                   );
@@ -265,7 +306,7 @@ class _AcadBaseShellState extends State<HomeScreen> {
     );
   }
 
-  /// _craftResponsiveNav — Isang responsive bottom bar na nag-e-stretch sa device 
+  /// _craftResponsiveNav — Isang responsive bottom bar na nag-e-stretch sa device
   /// width pero pinapanatiling compact (hugging) ang mga buttons.
   Widget _craftResponsiveNav() {
     return Container(
@@ -277,7 +318,7 @@ class _AcadBaseShellState extends State<HomeScreen> {
         borderRadius: BorderRadius.circular(100),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 30,
             offset: const Offset(0, 10),
           ),
@@ -285,10 +326,11 @@ class _AcadBaseShellState extends State<HomeScreen> {
       ),
       child: Row(
         // 'spaceBetween' ensures distribution across the stretched bar
-        mainAxisAlignment: MainAxisAlignment.spaceBetween, 
-        children: List.generate(_toolkitRegistry.length, (idx) {
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: List.generate(_modules.length, (idx) {
+          // UPDATED: _modules.length
           final bool isFocused = _activeToolIdx == idx;
-          
+
           return GestureDetector(
             onTap: () {
               if (_activeToolIdx != idx) {
@@ -307,29 +349,31 @@ class _AcadBaseShellState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(100),
               ),
               child: Row(
-                mainAxisSize: MainAxisSize.min, // Hugs the internal content tightly
+                mainAxisSize:
+                    MainAxisSize.min, // Hugs the internal content tightly
                 children: [
                   Icon(
-                    _toolkitRegistry[idx]['icon'] as IconData,
+                    _modules[idx].icon, // UPDATED: Polymorphic property access
                     color: isFocused ? Colors.white : Colors.grey[400],
                     size: 24,
                   ),
                   AnimatedSize(
                     duration: const Duration(milliseconds: 350),
                     curve: Curves.easeOutBack,
-                    child: isFocused 
-                      ? Padding(
-                          padding: const EdgeInsets.only(left: 12.0),
-                          child: Text(
-                            _toolkitRegistry[idx]['label'] as String,
-                            style: GoogleFonts.figtree(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
+                    child: isFocused
+                        ? Padding(
+                            padding: const EdgeInsets.only(left: 12.0),
+                            child: Text(
+                              _modules[idx]
+                                  .title, // UPDATED: Polymorphic property access
+                              style: GoogleFonts.figtree(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
-                        )
-                      : const SizedBox.shrink(),
+                          )
+                        : const SizedBox.shrink(),
                   ),
                 ],
               ),
