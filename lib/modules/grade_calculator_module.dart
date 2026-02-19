@@ -5,7 +5,7 @@ import '../core/tool_module.dart';
 // RUBRIC: [Step 2] Concrete Tool Module (Inheritance)
 class GradeCalculatorModule extends ToolModule {
   @override
-  String get title => 'Grade Calc';
+  String get title => 'Grade Calculator';
 
   @override
   IconData get icon => Icons.school_outlined;

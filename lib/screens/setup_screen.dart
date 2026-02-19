@@ -46,7 +46,7 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Whoops! Kailangan namin ng pangalan mo para magsimula.',
+            'Whoops! We need your name to get started.',
             style: GoogleFonts.figtree(fontWeight: FontWeight.w700),
           ),
           backgroundColor: Colors.black,
@@ -124,7 +124,7 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
                         const Text('👋', style: TextStyle(fontSize: 52)),
                         const SizedBox(height: 28),
                         Text(
-                          "Configure space.",
+                          "Configure your space.",
                           style: GoogleFonts.figtree(
                             fontSize: 40,
                             fontWeight: FontWeight.w900,
