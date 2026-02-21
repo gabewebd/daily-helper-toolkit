@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../core/app_theme.dart'; 
 import '../core/tool_module.dart';
 
 // INSTRUCTION (Rubric): [Step 2] Concrete Tool Module implementation
@@ -64,11 +65,11 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
     if (!mounted) return;
 
     // HUMANIZE: You can change this success message to something more fun or personalized!
-    final sessionString = "Completed ${_selectedMinutes.toInt()} min session!";
+    final sessionString = "Completed ${_selectedMinutes.toInt()} min session";
     _completedSessions.insert(0, sessionString);
 
     // HUMANIZE: Change "Session done! Galing!" to any friendly Taglish/English phrase you like.
-    _showSnackBar("Session done! Galing!");
+    _showSnackBar("Session completed! Great work!");
   }
 
   void _resetTimer() {
@@ -87,6 +88,8 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
           message,
           style: GoogleFonts.figtree(fontWeight: FontWeight.w600),
         ),
+        backgroundColor: Colors.black87,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -108,7 +111,6 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
   Widget build(BuildContext context) {
     final themeColor = Theme.of(context).primaryColor;
 
-    // FIX: SingleChildScrollView prevents the unbounded height crashes during tab animations.
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: SingleChildScrollView(
@@ -116,128 +118,180 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 12),
             // HUMANIZE: Feel free to change the header text to "Pomodoro", "Grind Time", etc.
             Text(
               'Focus Timer',
               style: GoogleFonts.figtree(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                color: Colors.black87,
+                letterSpacing: -0.5,
               ),
             ),
             const SizedBox(height: 24),
 
-            Center(
-              child: Container(
-                padding: const EdgeInsets.all(40),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: themeColor.withOpacity(0.05),
-                  border: Border.all(
-                    color: themeColor.withOpacity(0.3),
-                    width: 8,
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 48.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 24, offset: const Offset(0, 8)),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // Dynamic Circular Timer Indicator
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 220,
+                        height: 220,
+                        child: CircularProgressIndicator(
+                          value: _isRunning 
+                            ? _secondsRemaining / (_selectedMinutes * 60) 
+                            : 1.0,
+                          strokeWidth: 8,
+                          color: themeColor,
+                          backgroundColor: themeColor.withOpacity(0.15),
+                        ),
+                      ),
+                      ShaderMask(
+                        shaderCallback: (bounds) => AcadBalance.mapSpectrumToGradient(themeColor).createShader(bounds),
+                        child: Text(
+                          _timeString,
+                          style: GoogleFonts.figtree(
+                            fontSize: 64, 
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white, // White required for ShaderMask
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                child: Text(
-                  _timeString,
-                  style: GoogleFonts.figtree(
-                    fontSize: 56,
-                    fontWeight: FontWeight.w900,
-                    color: themeColor,
+                  const SizedBox(height: 48),
+
+                  // INSTRUCTION (Rubric): [Step 4] Slider requirement fulfilled!
+                  Text(
+                    'Set Duration: ${_selectedMinutes.toInt()} mins',
+                    style: GoogleFonts.figtree(fontWeight: FontWeight.w800, color: Colors.black54),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Slider(
+                      value: _selectedMinutes,
+                      min: 1.0, // Fixed: 1 min option
+                      max: 60.0,
+                      divisions: 59, // Fixed: 1 minute increments
+                      activeColor: themeColor,
+                      inactiveColor: Colors.grey.shade200,
+                      onChanged: _isRunning
+                          ? null
+                          : (value) {
+                              setState(() {
+                                _selectedMinutes = value;
+                                _secondsRemaining = value.toInt() * 60;
+                              });
+                            },
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 24),
-
-            // INSTRUCTION (Rubric): [Step 4] Slider requirement fulfilled!
-            Text(
-              'Set Duration: ${_selectedMinutes.toInt()} mins',
-              style: GoogleFonts.figtree(fontWeight: FontWeight.w700),
-            ),
-            Slider(
-              value: _selectedMinutes,
-              min: 5.0,
-              max: 60.0,
-              divisions: 11,
-              activeColor: themeColor,
-              onChanged: _isRunning
-                  ? null
-                  : (value) {
-                      setState(() {
-                        _selectedMinutes = value;
-                        _secondsRemaining = value.toInt() * 60;
-                      });
-                    },
-            ),
-            const SizedBox(height: 12),
 
             // FIX: Stacked buttons take full width instead of using Row + Expanded.
-            // This totally stops the "BoxConstraints forces an infinite width" error.
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: _toggleTimer,
-                icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
-                // HUMANIZE: Button labels can be customized (e.g., "LET'S GO", "TAKE A BREAK")
-                label: Text(_isRunning ? 'PAUSE' : 'START FOCUS'),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: SizedBox(
+                    height: 56,
+                    child: FilledButton.icon(
+                      onPressed: _toggleTimer,
+                      icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
+                      // HUMANIZE: Button labels can be customized
+                      label: Text(_isRunning ? 'PAUSE' : 'START FOCUS', style: GoogleFonts.figtree(fontWeight: FontWeight.w800, letterSpacing: 1.0)),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: _isRunning ? Colors.black87 : themeColor,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 0,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _resetTimer,
-                icon: const Icon(Icons.refresh),
-                // HUMANIZE: Change button label if you want
-                label: const Text('RESET TIMER'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.grey.shade200,
-                  foregroundColor: Colors.black,
-                  elevation: 0,
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 1,
+                  child: SizedBox(
+                    height: 56,
+                    // Simplified Flat Reset Button
+                    child: FilledButton(
+                      onPressed: _resetTimer,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.grey.shade200,
+                        foregroundColor: Colors.black87,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: const Icon(Icons.refresh),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 40),
 
             // INSTRUCTION (Rubric): [Step 4] Session History requirement fulfilled
-            Text(
-              'Session History',
-              style: GoogleFonts.figtree(
-                fontWeight: FontWeight.w700,
-                color: Colors.black54,
+            if (_completedSessions.isNotEmpty) ...[
+              Text(
+                'Session History',
+                style: GoogleFonts.figtree(
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black45,
+                  letterSpacing: 1.0,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 16),
+            ],
 
             // FIX: Directly mapping the list items into the Column prevents unbounded height crashes.
-            // We removed the 'Expanded' and 'ListView' entirely for safety.
             if (_completedSessions.isEmpty)
               Center(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 20.0, bottom: 40.0),
                   // HUMANIZE: Change this empty state text to match your app's personality
                   child: Text(
-                    "No sessions yet. Start grinding!",
-                    style: GoogleFonts.figtree(color: Colors.black26),
+                    "No sessions yet. Time to focus!",
+                    style: GoogleFonts.figtree(color: Colors.black26, fontWeight: FontWeight.w600, fontSize: 16),
                   ),
                 ),
               )
             else
               ..._completedSessions.map(
-                (session) => Card(
-                  elevation: 0,
-                  color: Colors.grey.shade50,
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    leading: Icon(Icons.check_circle, color: themeColor),
-                    title: Text(
-                      session,
-                      style: GoogleFonts.figtree(fontWeight: FontWeight.w600),
-                    ),
+                (session) => Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle, color: themeColor, size: 24),
+                      const SizedBox(width: 16),
+                      Text(
+                        session,
+                        style: GoogleFonts.figtree(fontWeight: FontWeight.w700, fontSize: 15, color: Colors.black87),
+                      ),
+                    ],
                   ),
                 ),
               ),

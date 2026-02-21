@@ -39,7 +39,7 @@ class _BmiBodyState extends State<BmiBody> {
 
     // RUBRIC: [UI/UX] Handle invalid input gracefully (Empty)
     if (weightStr.isEmpty || heightStr.isEmpty) {
-      _showErrorSnackBar("Oops! Paki-lagay yung weight at height mo.");
+      _showErrorSnackBar("Please enter both weight and height.");
       return;
     }
 
@@ -48,7 +48,7 @@ class _BmiBodyState extends State<BmiBody> {
 
     // RUBRIC: [UI/UX] Non-numeric and logic validations
     if (weight == null || heightCm == null || weight <= 0 || heightCm <= 0) {
-      _showErrorSnackBar("Invalid input. Valid numbers lang please.");
+      _showErrorSnackBar("Invalid input. Please enter valid positive numbers.");
       return;
     }
 
@@ -90,6 +90,7 @@ class _BmiBodyState extends State<BmiBody> {
         ),
         backgroundColor: Colors.redAccent,
         behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
@@ -101,99 +102,132 @@ class _BmiBodyState extends State<BmiBody> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 12),
             // HUMANIZE: Change the header
             Text(
               'BMI Checker',
               style: GoogleFonts.figtree(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                color: Colors.black87,
+                letterSpacing: -0.5,
               ),
             ),
             const SizedBox(height: 24),
 
-            Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(22),
-                side: BorderSide(color: Colors.grey.shade200),
+            Container(
+              padding: const EdgeInsets.all(24.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 24, offset: const Offset(0, 8)),
+                ],
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    // RUBRIC: [Step 4] TextField with Controllers
-                    TextField(
-                      controller: _weightController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
+              child: Column(
+                children: [
+                  // RUBRIC: [Step 4] TextField with Controllers
+                  TextField(
+                    controller: _weightController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    style: GoogleFonts.figtree(fontWeight: FontWeight.w600, fontSize: 16),
+                    decoration: InputDecoration(
+                      hintText: 'Weight (kg)',
+                      hintStyle: GoogleFonts.figtree(color: Colors.grey.shade400),
+                      prefixIcon: Icon(Icons.scale, color: Colors.grey.shade400),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 18),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _heightController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    style: GoogleFonts.figtree(fontWeight: FontWeight.w600, fontSize: 16),
+                    decoration: InputDecoration(
+                      hintText: 'Height (cm)',
+                      hintStyle: GoogleFonts.figtree(color: Colors.grey.shade400),
+                      prefixIcon: Icon(Icons.height, color: Colors.grey.shade400),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 18),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    // RUBRIC: [Step 4] FilledButton
+                    child: FilledButton(
+                      onPressed: _calculateBmi,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: themeColor,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 0,
                       ),
-                      decoration: const InputDecoration(
-                        labelText: 'Weight (kg)',
-                        prefixIcon: Icon(Icons.scale),
+                      child: Text(
+                        'CHECK BMI',
+                        style: GoogleFonts.figtree(fontWeight: FontWeight.w800, letterSpacing: 1.0, fontSize: 15),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _heightController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: const InputDecoration(
-                        labelText: 'Height (cm)',
-                        prefixIcon: Icon(Icons.height),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      // RUBRIC: [Step 4] FilledButton
-                      child: FilledButton(
-                        onPressed: _calculateBmi,
-                        child: const Text('CHECK BMI'),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
             if (_bmiResult != null) ...[
               const SizedBox(height: 32),
-              Center(
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(color: _categoryColor.withOpacity(0.05), blurRadius: 24, offset: const Offset(0, 10)),
+                  ],
+                  border: Border.all(color: _categoryColor.withOpacity(0.4), width: 2),
+                ),
                 child: Column(
                   children: [
                     Text(
                       'Your Result',
                       style: GoogleFonts.figtree(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
                         color: Colors.black45,
+                        letterSpacing: 1.5,
                       ),
                     ),
+                    const SizedBox(height: 8),
                     Text(
                       _bmiResult!.toStringAsFixed(1),
                       style: GoogleFonts.figtree(
                         fontSize: 64,
                         fontWeight: FontWeight.w900,
                         color: _categoryColor,
+                        height: 1.1,
+                        letterSpacing: -2,
                       ),
                     ),
+                    const SizedBox(height: 16),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                       decoration: BoxDecoration(
                         color: _categoryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         _bmiCategory.toUpperCase(),
                         style: GoogleFonts.figtree(
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w900,
                           color: _categoryColor,
                           letterSpacing: 1.2,
                         ),
@@ -202,6 +236,7 @@ class _BmiBodyState extends State<BmiBody> {
                   ],
                 ),
               ),
+              const SizedBox(height: 40),
             ],
           ],
         ),

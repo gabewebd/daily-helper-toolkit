@@ -46,7 +46,7 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
     // RUBRIC: [UI/UX] Handle invalid input gracefully (Empty input)
     if (name.isEmpty || unitsText.isEmpty || gradeText.isEmpty) {
       // HUMANIZE: Pwede mong palitan yung error message sa Taglish or your own style.
-      _showError('Oops! Paki-fill out lahat ng fields bago mag-add.');
+      _showError('Please fill in all fields before adding a subject.');
       return;
     }
 
@@ -55,11 +55,11 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
 
     // RUBRIC: [UI/UX] Non-numeric input handling
     if (units == null || units <= 0) {
-      _showError('Invalid units. Kailangan ng number na mas mataas sa 0.');
+      _showError('Invalid units. Please enter a number greater than 0.');
       return;
     }
     if (grade == null || grade < 1.0 || grade > 5.0) {
-      _showError('Invalid grade. Dapat from 1.0 to 5.0 lang.');
+      _showError('Invalid grade. Please enter a grade between 1.0 and 5.0.');
       return;
     }
 
@@ -113,56 +113,93 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
         ),
         backgroundColor: Colors.redAccent,
         behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
 
   // RUBRIC: [Step 4] Dialog for output breakdown
   void _showResultDialog(double gwa, double totalUnits, String status) {
+    final themeColor = Theme.of(context).primaryColor;
+    
+    // Determine color based on GWA status
+    final statusColor = gwa <= 3.0 ? Colors.green : Colors.redAccent;
+    
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-          title: Text(
-            'Your GWA',
-            style: GoogleFonts.figtree(fontWeight: FontWeight.w900),
-            textAlign: TextAlign.center,
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Total Units: $totalUnits',
-                style: GoogleFonts.figtree(fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                gwa.toStringAsFixed(2),
-                style: GoogleFonts.figtree(
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor,
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: themeColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.school, size: 40, color: themeColor),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Status: $status',
-                style: GoogleFonts.figtree(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Close',
-                style: GoogleFonts.figtree(fontWeight: FontWeight.bold),
-              ),
+                const SizedBox(height: 24),
+                Text(
+                  'YOUR GWA',
+                  style: GoogleFonts.figtree(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.black45, letterSpacing: 2.0),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  gwa.toStringAsFixed(2),
+                  style: GoogleFonts.figtree(
+                    fontSize: 56,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black87,
+                    letterSpacing: -2,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Total Units: ${totalUnits.toInt()}',
+                  style: GoogleFonts.figtree(fontSize: 16, color: Colors.black54, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 20),
+                
+                // Outlined Status Container
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.05),
+                    border: Border.all(color: statusColor.withOpacity(0.5), width: 2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'Status: $status',
+                    style: GoogleFonts.figtree(fontWeight: FontWeight.w800, color: statusColor),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                
+                // Simplified Close Button
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      'Close',
+                      style: GoogleFonts.figtree(
+                        fontWeight: FontWeight.w800, 
+                        fontSize: 16, 
+                        color: themeColor
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
@@ -174,6 +211,7 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
 
     // ADDED FIX: Changed Column to ListView para hindi mag-overflow pag lumabas ang keyboard
     return ListView(
+      physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       children: [
         Row(
@@ -183,93 +221,124 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
             Text(
               'Grade Calculator',
               style: GoogleFonts.figtree(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                color: Colors.black87,
+                letterSpacing: -0.5,
               ),
             ),
-            IconButton(icon: const Icon(Icons.refresh), onPressed: _reset),
-          ],
-        ),
-        const SizedBox(height: 16),
-
-        // RUBRIC: [Step 4] Card & TextField usage
-        Card(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
-            side: BorderSide(color: Colors.grey.shade200),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                TextField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    hintText: 'Subject (e.g., MATH 101)',
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _unitsController,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        decoration: const InputDecoration(hintText: 'Units'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        controller: _gradeController,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        decoration: const InputDecoration(hintText: 'Grade'),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  // RUBRIC: [Step 4] FilledButton
-                  child: FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: themeColor.withOpacity(0.1),
-                      foregroundColor: themeColor,
-                    ),
-                    onPressed: _addSubject,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Subject'),
-                  ),
-                ),
-              ],
+            IconButton(
+              icon: Icon(Icons.refresh, color: Colors.grey.shade400), 
+              onPressed: _reset
             ),
-          ),
+          ],
         ),
         const SizedBox(height: 24),
 
-        // RUBRIC: [Step 4] ListView for output breakdown
-        Text(
-          'Subjects Added',
-          style: GoogleFonts.figtree(
-            fontWeight: FontWeight.w700,
-            color: Colors.black54,
+        // RUBRIC: [Step 4] Card & TextField usage
+        Container(
+          padding: const EdgeInsets.all(24.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 24, offset: const Offset(0, 8)),
+            ],
+          ),
+          child: Column(
+            children: [
+              TextField(
+                controller: _nameController,
+                style: GoogleFonts.figtree(fontWeight: FontWeight.w600, fontSize: 16),
+                decoration: InputDecoration(
+                  hintText: 'Subject (e.g., MATH 101)',
+                  hintStyle: GoogleFonts.figtree(color: Colors.grey.shade400),
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _unitsController,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      style: GoogleFonts.figtree(fontWeight: FontWeight.w600, fontSize: 16),
+                      decoration: InputDecoration(
+                        hintText: 'Units',
+                        hintStyle: GoogleFonts.figtree(color: Colors.grey.shade400),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: _gradeController,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      style: GoogleFonts.figtree(fontWeight: FontWeight.w600, fontSize: 16),
+                      decoration: InputDecoration(
+                        hintText: 'Grade',
+                        hintStyle: GoogleFonts.figtree(color: Colors.grey.shade400),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                // RUBRIC: [Step 4] FilledButton (Solid Light Tint)
+                child: FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: themeColor.withOpacity(0.1),
+                    foregroundColor: themeColor,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  onPressed: _addSubject,
+                  icon: const Icon(Icons.add),
+                  label: Text('ADD SUBJECT', style: GoogleFonts.figtree(fontWeight: FontWeight.w800, letterSpacing: 1.0)),
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 32),
+
+        // RUBRIC: [Step 4] ListView for output breakdown
+        if (_subjects.isNotEmpty) ...[
+          Text(
+            'Subjects Added',
+            style: GoogleFonts.figtree(
+              fontWeight: FontWeight.w800,
+              color: Colors.black45,
+              letterSpacing: 1.0,
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
 
         // ADDED FIX: Pinalitan ng conditional render at shrinkWrap ang Expanded para gumana sa loob ng ListView
         if (_subjects.isEmpty)
           Center(
-            child: Text(
-              'No subjects added yet.',
-              style: GoogleFonts.figtree(color: Colors.black26),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32.0),
+              child: Text(
+                'No subjects added yet.',
+                style: GoogleFonts.figtree(color: Colors.black26, fontWeight: FontWeight.w600, fontSize: 16),
+              ),
             ),
           )
         else
@@ -279,35 +348,65 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
             itemCount: _subjects.length,
             itemBuilder: (context, index) {
               final subject = _subjects[index];
-              return Card(
-                elevation: 0,
-                color: Colors.grey.shade50,
-                margin: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  title: Text(
-                    subject.name,
-                    style: GoogleFonts.figtree(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text('Units: ${subject.units}'),
-                  trailing: Text(
-                    subject.grade.toString(),
-                    style: GoogleFonts.figtree(
-                      fontWeight: FontWeight.w900,
-                      color: themeColor,
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          subject.name,
+                          style: GoogleFonts.figtree(fontWeight: FontWeight.w800, fontSize: 16, color: Colors.black87),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Units: ${subject.units.toInt()}',
+                          style: GoogleFonts.figtree(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey.shade500),
+                        ),
+                      ],
                     ),
-                  ),
+                    Text(
+                      subject.grade.toStringAsFixed(1),
+                      style: GoogleFonts.figtree(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: themeColor,
+                      ),
+                    ),
+                  ],
                 ),
               );
             },
           ),
-        const SizedBox(height: 24),
-
-        // RUBRIC: [Step 4] ElevatedButton
-        ElevatedButton(
-          onPressed: _computeGWA,
-          child: const Text('CALCULATE GWA'),
-        ),
-        const SizedBox(height: 32),
+        
+        if (_subjects.isNotEmpty) ...[
+          const SizedBox(height: 32),
+          // RUBRIC: [Step 4] ElevatedButton
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: themeColor,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 0,
+              ),
+              onPressed: _computeGWA,
+              child: Text('CALCULATE GWA', style: GoogleFonts.figtree(fontWeight: FontWeight.w800, letterSpacing: 1.0, fontSize: 15, color: Colors.white)),
+            ),
+          ),
+          const SizedBox(height: 48),
+        ],
       ],
     );
   }

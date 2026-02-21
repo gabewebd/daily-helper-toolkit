@@ -34,15 +34,16 @@ class _AcadBaseShellState extends State<HomeScreen> {
 
   // Nilagay natin sa Registry format para madaling i-maintain
   // UPDATED (Step 5): Polymorphic Collection of Modules
-  late final List<ToolModule> _modules;
+  final List<ToolModule> _modules = [
+    BmiModule(),
+    StudyTimerModule(),
+    GradeCalculatorModule(),
+  ];
 
   @override
   void initState() {
     super.initState();
     _currentAura = widget.baseAura;
-
-    // UPDATED: Pag-instantiate ng ating modules imbes na hardcoded Map
-    _modules = [BmiModule(), StudyTimerModule(), GradeCalculatorModule()];
   }
 
   // Helper para makuha ang dynamic gradient base sa active vibe
@@ -54,71 +55,47 @@ class _AcadBaseShellState extends State<HomeScreen> {
     // Kinukuha ang personalized theme base sa ating global manifest
     final shellTheme = AcadBalance.forgeHelperTheme(_currentAura);
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: shellTheme,
-      home: Scaffold(
-        backgroundColor: shellTheme.scaffoldBackgroundColor,
-        body: SafeArea(
-          bottom: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _forgeHeader(context),
+    // FIX: Wrapped the entire app with AppThemeState.
+    // This allows the modules inside the IndexedStack to call AppThemeState.of(context)
+    // without throwing the "not found in context" error.
+    return AppThemeState(
+      handle: widget.userHandle,
+      anchor: _currentAura,
+      triggerNameUpdate: (_) {}, // No-op since we don't update name from home
+      triggerColorUpdate: (newColor) {
+        setState(() {
+          _currentAura = newColor;
+        });
+      },
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: shellTheme,
+        home: Scaffold(
+          backgroundColor: shellTheme.scaffoldBackgroundColor,
+          body: SafeArea(
+            bottom: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _forgeHeader(context),
 
-              // === MODULE VIEWPORT ===
-              // Dito natin "isinasalpak" ang logic ng ating mga MMODULES
-              Expanded(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 450),
-                  switchInCurve: Curves.easeOutQuart,
-                  switchOutCurve: Curves.easeInQuart,
-                  transitionBuilder: (viewportChild, animation) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0.0, 0.02), // Subtle lift effect
-                          end: Offset.zero,
-                        ).animate(animation),
-                        child: viewportChild,
-                      ),
-                    );
-                  },
-                  // FIX APPLIED HERE: Added layoutBuilder with StackFit.expand
-                  // to provide bounded constraints for the StudyTimer's Expanded widgets.
-                  layoutBuilder:
-                      (Widget? currentChild, List<Widget> previousChildren) {
-                        return Stack(
-                          fit: StackFit.expand,
-                          alignment: Alignment.topCenter,
-                          children: <Widget>[
-                            ...previousChildren,
-                            if (currentChild != null) currentChild,
-                          ],
-                        );
-                      },
-                  child: _assembleActiveModule(),
+                // === MODULE VIEWPORT ===
+                // Dito natin "isinasalpak" ang logic ng ating mga MMODULES
+                // FIX: Using IndexedStack to preserve state across tab switches
+                Expanded(
+                  child: IndexedStack(
+                    index: _activeToolIdx,
+                    children: _modules.map((module) => module.buildBody(context)).toList(),
+                  ),
                 ),
-              ),
 
-              // Ang ating responsive floating navigation
-              _craftResponsiveNav(),
-            ],
+                // Ang ating responsive floating navigation
+                _craftResponsiveNav(),
+              ],
+            ),
           ),
         ),
       ),
-    );
-  }
-
-  /// _assembleActiveModule — Ang logic provider para sa bawat tab.
-  /// Kapag tapos na ang modules, i-re-replace natin itong switch.
-  Widget _assembleActiveModule() {
-    // UPDATED (Step 6): Dynamic Invocation! Pinalitan ang switch statement
-    // ADDED FIX: KeyedSubtree para hindi mag-glitch ang AnimatedSwitcher pag nag-switch ng tabs
-    return KeyedSubtree(
-      key: ValueKey(_activeToolIdx),
-      child: _modules[_activeToolIdx].buildBody(context),
     );
   }
 
