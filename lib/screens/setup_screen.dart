@@ -66,8 +66,8 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => SplashScreen(
-          displayName: naTypeNaPangalan,
-          selectedColor: _hinirangNaKulayNiya,
+          pangalanNaPapasa: naTypeNaPangalan,
+          kulayNaPapasa: _hinirangNaKulayNiya,
         ),
         transitionDuration: const Duration(milliseconds: 850),
         transitionsBuilder: (context, anim, secondAnim, child) =>

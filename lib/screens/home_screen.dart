@@ -34,7 +34,7 @@ class _ItsuraNgHomeNatinState extends State<HomeScreen> {
 
   // Pinasok sa isang list structure to showcase yung polymorphism, 
   // isang loop lang mamaya sa UI para safe at malinis (Step 5 requirement).
-  final List<AngBaseNgMgaModules> _listahanNgMgaPahinaNatin = [
+  final List<ToolModule> _listahanNgMgaPahinaNatin = [
     BmiModule(),
     StudyTimerModule(),
     GradeCalculatorModule(),
@@ -83,7 +83,7 @@ class _ItsuraNgHomeNatinState extends State<HomeScreen> {
                 Expanded(
                   child: IndexedStack(
                     index: _anongTabAngNakaOpen,
-                    children: _listahanNgMgaPahinaNatin.map((module) => module.papakitaSaScreen(context)).toList(),
+                    children: _listahanNgMgaPahinaNatin.map((module) => module.buildBody(context)).toList(),
                   ),
                 ),
 
@@ -327,7 +327,7 @@ class _ItsuraNgHomeNatinState extends State<HomeScreen> {
                     MainAxisSize.min, // Hugs the internal content tightly
                 children: [
                   Icon(
-                    _listahanNgMgaPahinaNatin[idx].anongIconGagamitin, // Magic ng polymorphism: auto read abstract value
+                    _listahanNgMgaPahinaNatin[idx].icon, // Magic ng polymorphism: auto read abstract value
                     color: itoBaYungPinindotNiya ? Colors.white : Colors.grey[400],
                     size: 24,
                   ),
@@ -339,7 +339,7 @@ class _ItsuraNgHomeNatinState extends State<HomeScreen> {
                             padding: const EdgeInsets.only(left: 12.0),
                             child: Text(
                               _listahanNgMgaPahinaNatin[idx]
-                                  .anongPangalanNito, // Same sa icon, dynamically fetched ang title gamit abstract class
+                                  .title, // Same sa icon, dynamically fetched ang title gamit abstract class
                               style: GoogleFonts.figtree(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w900,

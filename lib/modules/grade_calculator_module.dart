@@ -3,15 +3,15 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/tool_module.dart';
 
 // josh: grade calculator gawa ni mika yan
-class GradeCalculatorModule extends AngBaseNgMgaModules {
+class GradeCalculatorModule extends ToolModule {
   @override
-  String get anongPangalanNito => 'GWA Calc';
+  String get title => 'GWA Calc';
 
   @override
-  IconData get anongIconGagamitin => Icons.calculate_rounded;
+  IconData get icon => Icons.calculate_rounded;
 
   @override
-  Widget papakitaSaScreen(BuildContext context) {
+  Widget buildBody(BuildContext context) {
     return const GradeCalculatorBody();
   }
 }

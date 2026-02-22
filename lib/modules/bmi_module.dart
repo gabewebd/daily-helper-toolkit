@@ -4,15 +4,15 @@ import '../core/tool_module.dart';
 
 // Nakabase ito sa AngBaseNgMgaModules para masunod yung OOP inheritance (Step 2 sa rubric)
 // dave: yung BMI part naka-assign kay josh
-class BmiModule extends AngBaseNgMgaModules {
+class BmiModule extends ToolModule {
   @override
-  String get anongPangalanNito => 'BMI Check';
+  String get title => 'BMI Check';
 
   @override
-  IconData get anongIconGagamitin => Icons.monitor_weight_outlined;
+  IconData get icon => Icons.monitor_weight_outlined;
 
   @override
-  Widget papakitaSaScreen(BuildContext context) {
+  Widget buildBody(BuildContext context) {
     return const BmiBody();
   }
 }

@@ -6,15 +6,15 @@ import '../core/tool_module.dart';
 
 // Pangalawa nating module base sa OOP inheritance (Polymorphic ready)
 // mika: study timer ito yung inassign kay dave diba
-class StudyTimerModule extends AngBaseNgMgaModules {
+class StudyTimerModule extends ToolModule {
   @override
-  String get anongPangalanNito => 'Pomodoro';
+  String get title => 'Pomodoro';
 
   @override
-  IconData get anongIconGagamitin => Icons.timer_outlined;
+  IconData get icon => Icons.timer_outlined;
 
   @override
-  Widget papakitaSaScreen(BuildContext context) {
+  Widget buildBody(BuildContext context) {
     return const StudyTimerBody();
   }
 }
