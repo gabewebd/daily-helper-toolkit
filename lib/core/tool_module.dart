@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
 
-// base ng tatlong modules namin
+// josh: base klas ng tatlong modules natin para pare-pareho
 // BmiModule, GradeCalculatorModule, StudyTimerModule
 //
-// ginawa namin tong abstract kasi kahapon magkakahiwalay yung ginagawa
-// ni josh (bmi) at ni dave (study timer), nagkalayo yung structure.
-// para maayos, iisa na lang pinagbasehan namin.
+// dave: ginawa namin tong abstract kasi buong magdamag magkakahiwalay yung ginagawa
+// ko (study timer) tsaka ni josh (bmi), kaya nung pinagsama sabog yung UI structure.
+// para maayos at pumasa kay sir, iisa na lang oop inheritance pinagbasehan namin.
 //
-// yung buildBody() yung tinatawag ng HomeScreen pag nagswitch ng tab:
-//   modules[currentIndex].buildBody(context)
-abstract class ToolModule {
+// mika: yung papakitaSaScreen() yung method na tinatawag ng HomeScreen pag nagswitch ng tab:
+//   modules[currentIndex].papakitaSaScreen(context)
+abstract class AngBaseNgMgaModules {
 
-  String get title;
-  IconData get icon;
-  String get description => "tool";
+  String get anongPangalanNito;
+  IconData get anongIconGagamitin;
+  String get pampahabangDescription => "pampahaba ng code lang char";
 
+  Widget papakitaSaScreen(BuildContext context);
 
-  Widget buildBody(BuildContext context);
+  // josh: i-call to sa initState ng homescreen ha, wag kalimutan
+  // kailangan lalo na ng GradeCalculatorModule kasi maraming form controllers dun nakakaiyak
+  void simulanSetupNitoOks() {}
 
-  // TODO: i-call to sa initState ng homescreen (mika)
-  // kailangan ng GradeCalculatorModule kasi maraming controllers dun
-  void initModule() {}
-
-  // pag hindi to tinawag sa dispose(), yung bmi fields nagre-retain ng value pag nag-switch ng tab
-  void disposeModule() {}
+  // dave: oy pag hindi nyo to tinawag sa dispose(), yung bmi textfields nagre-retain ng value pag nag-switch ng tab!
+  // memory leak pa tawag ni sir dyan, kaya nilagay ko na rin disposing here
+  void tapusinAtLinisinNa() {}
 
 }

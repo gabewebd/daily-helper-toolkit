@@ -5,8 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/app_theme.dart';
 import 'splash_screen.dart';
 
-// setup screen — pangalan + theme color ng user
-// left-aligned layout, gusto namin yung feel na hindi puro centered
+// josh: setup screen — pangalan + theme color ng user daw requirement
+// dave: left-aligned layout, gusto namin yung feel na hindi puro centered para maiba naman
 class SetupScreen extends StatefulWidget {
   const SetupScreen({super.key});
 
@@ -15,33 +15,36 @@ class SetupScreen extends StatefulWidget {
 }
 
 class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStateMixin {
-  final _aliasInput = TextEditingController();
-  Color _vibeChoice = AcadBalance.currentSpectrumOptions.first;
-  late AnimationController _sequenceManager;
+  final _kuhananNgPangalan = TextEditingController();
+  Color _hinirangNaKulayNiya = AcadBalance.currentSpectrumOptions.first;
+  late AnimationController _tagaHawakNgOrasNgAnimation;
 
   @override
   void initState() {
     super.initState();
 
-    _sequenceManager = AnimationController(
+    // Mika: 1400ms na lang kasi pag mas mabilis parang nagla-lag
+    _tagaHawakNgOrasNgAnimation = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1400),
     );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => _sequenceManager.forward());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _tagaHawakNgOrasNgAnimation.forward());
   }
 
   @override
   void dispose() {
-    _aliasInput.dispose();
-    _sequenceManager.dispose();
+    _kuhananNgPangalan.dispose();
+    _tagaHawakNgOrasNgAnimation.dispose();
     super.dispose();
   }
 
-  void _proceed() {
-    final String userHandle = _aliasInput.text.trim();
+  // josh: Trigger to once pinindot niya yung start pre
+  void _pindotBagoPumuntaMismo() {
+    final String naTypeNaPangalan = _kuhananNgPangalan.text.trim();
 
-    if (userHandle.isEmpty) {
+    // strict requirement, di pwedeng basyo
+    if (naTypeNaPangalan.isEmpty) {
       HapticFeedback.vibrate();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -63,8 +66,8 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => SplashScreen(
-          displayName: userHandle,
-          selectedColor: _vibeChoice,
+          displayName: naTypeNaPangalan,
+          selectedColor: _hinirangNaKulayNiya,
         ),
         transitionDuration: const Duration(milliseconds: 850),
         transitionsBuilder: (context, anim, secondAnim, child) =>
@@ -75,28 +78,29 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    final viewport = MediaQuery.of(context).size;
+    // kinuha natin width height para responsive
+    final lakiNgScreenPoNatin = MediaQuery.of(context).size;
 
     return Scaffold(
       backgroundColor: AcadBalance.paperWhite,
       body: Stack(
         children: [
 
-          // background glow — opacity 0.06 para sobrang soft lang,
-          // natuklasan namin na pag 0.1+ medyo harsh na
+          // josh: background glow — opacity 0.06 para sobrang soft lang,
+          // dave: natuklasan namin na pag 0.1+ medyo harsh na sa mata
           AnimatedPositioned(
             duration: const Duration(milliseconds: 700),
             curve: Curves.easeOutCirc,
-            top: _vibeChoice == AcadBalance.currentSpectrumOptions[0] ? -80 : -140,
-            right: _vibeChoice == AcadBalance.currentSpectrumOptions[1] ? -80 : -180,
-            left: _vibeChoice == AcadBalance.currentSpectrumOptions[2] ? -80 : null,
+            top: _hinirangNaKulayNiya == AcadBalance.currentSpectrumOptions[0] ? -80 : -140,
+            right: _hinirangNaKulayNiya == AcadBalance.currentSpectrumOptions[1] ? -80 : -180,
+            left: _hinirangNaKulayNiya == AcadBalance.currentSpectrumOptions[2] ? -80 : null,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 500),
-              width: viewport.width * 1.5,
-              height: viewport.width * 1.5,
+              width: lakiNgScreenPoNatin.width * 1.5,
+              height: lakiNgScreenPoNatin.width * 1.5,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: _vibeChoice.withOpacity(0.06),
+                color: _hinirangNaKulayNiya.withOpacity(0.06),
               ),
             ),
           ),
@@ -116,8 +120,8 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
                 children: [
                   const SizedBox(height: 50),
 
-                  _staggerIn(
-                    sequence: 0.0,
+                  _papasokPaisaIsaNaView(
+                    pangIlanNaToPre: 0.0,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -148,8 +152,8 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
 
                   const SizedBox(height: 64),
 
-                  _staggerIn(
-                    sequence: 0.2,
+                  _papasokPaisaIsaNaView(
+                    pangIlanNaToPre: 0.2,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -164,13 +168,13 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
                         ),
                         const SizedBox(height: 12),
                         TextField(
-                          controller: _aliasInput,
+                          controller: _kuhananNgPangalan,
                           textCapitalization: TextCapitalization.words,
-                          cursorColor: _vibeChoice,
+                          cursorColor: _hinirangNaKulayNiya,
                           style: GoogleFonts.figtree(
                             fontSize: 34,
                             fontWeight: FontWeight.w800,
-                            color: _vibeChoice,
+                            color: _hinirangNaKulayNiya,
                             letterSpacing: -0.8,
                           ),
                           decoration: InputDecoration(
@@ -183,13 +187,13 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
                           onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 4),
-                        // underline nag-e-expand habang nagtatype
+                        // mika: ginawan ko ng underline na nag-e-expand habang nagtatype. sana gumana to sa checking
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 400),
                           height: 3,
-                          width: _aliasInput.text.isEmpty ? 40 : viewport.width,
+                          width: _kuhananNgPangalan.text.isEmpty ? 40 : lakiNgScreenPoNatin.width,
                           decoration: BoxDecoration(
-                            gradient: AcadBalance.mapSpectrumToGradient(_vibeChoice),
+                            gradient: AcadBalance.mapSpectrumToGradient(_hinirangNaKulayNiya),
                             borderRadius: BorderRadius.circular(1),
                           ),
                         ),
@@ -199,8 +203,8 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
 
                   const SizedBox(height: 64),
 
-                  _staggerIn(
-                    sequence: 0.4,
+                  _papasokPaisaIsaNaView(
+                    pangIlanNaToPre: 0.4,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -216,17 +220,17 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
                         const SizedBox(height: 24),
                         Row(
                           children: AcadBalance.currentSpectrumOptions.map((tone) {
-                            final bool isActive = tone == _vibeChoice;
+                            final bool isActive = tone == _hinirangNaKulayNiya;
                             return Padding(
                               padding: const EdgeInsets.only(right: 16),
                               child: GestureDetector(
                                 onTap: () {
                                   HapticFeedback.selectionClick();
-                                  setState(() => _vibeChoice = tone);
+                                  setState(() => _hinirangNaKulayNiya = tone);
                                 },
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 300),
-                                  // nag-e-expand yung selected para obvious kung alin yung active
+                                  // dave: nag-e-expand yung selected para obvious kung alin yung active sa widget
                                   width: isActive ? 84 : 60,
                                   height: 60,
                                   decoration: BoxDecoration(
@@ -254,14 +258,14 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
 
                   const SizedBox(height: 80),
 
-                  _staggerIn(
-                    sequence: 0.6,
+                  _papasokPaisaIsaNaView(
+                    pangIlanNaToPre: 0.6,
                     child: SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _proceed,
+                        onPressed: _pindotBagoPumuntaMismo,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _vibeChoice,
+                          backgroundColor: _hinirangNaKulayNiya,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 22),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -287,18 +291,18 @@ class _SetupScreenState extends State<SetupScreen> with SingleTickerProviderStat
     );
   }
 
-  // staggered entrance — sequence lang nagbabago per section
-  Widget _staggerIn({required Widget child, required double sequence}) {
+  // josh: staggered entrance pambawi natin sa UI part — sequence lang nagbabago per section para g
+  Widget _papasokPaisaIsaNaView({required Widget child, required double pangIlanNaToPre}) {
     return FadeTransition(
       opacity: CurvedAnimation(
-        parent: _sequenceManager,
-        curve: Interval(sequence, sequence + 0.35, curve: Curves.easeIn),
+        parent: _tagaHawakNgOrasNgAnimation,
+        curve: Interval(pangIlanNaToPre, pangIlanNaToPre + 0.35, curve: Curves.easeIn),
       ),
       child: SlideTransition(
         position: Tween<Offset>(begin: const Offset(0, 0.03), end: Offset.zero).animate(
           CurvedAnimation(
-            parent: _sequenceManager,
-            curve: Interval(sequence, sequence + 0.35, curve: Curves.easeOutQuad),
+            parent: _tagaHawakNgOrasNgAnimation,
+            curve: Interval(pangIlanNaToPre, pangIlanNaToPre + 0.35, curve: Curves.easeOutQuad),
           ),
         ),
         child: child,

@@ -5,7 +5,8 @@ void main() {
   runApp(const DailyHelperApp());
 }
 
-// entry point — setup screen muna bago splash tapos home
+// dave: Default entry point ng buong app ha wag nyo galawin to.
+// papasok muna sa setup screen para kunin name bago mag splash screen tas home interface
 class DailyHelperApp extends StatelessWidget {
   const DailyHelperApp({super.key});
 

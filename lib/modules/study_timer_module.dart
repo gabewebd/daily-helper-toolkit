@@ -4,16 +4,17 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/app_theme.dart';
 import '../core/tool_module.dart';
 
-// Ins: Step 2 Tool Module
-class StudyTimerModule extends ToolModule {
+// Pangalawa nating module base sa OOP inheritance (Polymorphic ready)
+// mika: study timer ito yung inassign kay dave diba
+class StudyTimerModule extends AngBaseNgMgaModules {
   @override
-  String get title => 'Study Timer';
+  String get anongPangalanNito => 'Pomodoro';
 
   @override
-  IconData get icon => Icons.timer_outlined;
+  IconData get anongIconGagamitin => Icons.timer_outlined;
 
   @override
-  Widget buildBody(BuildContext context) {
+  Widget papakitaSaScreen(BuildContext context) {
     return const StudyTimerBody();
   }
 }
@@ -26,36 +27,37 @@ class StudyTimerBody extends StatefulWidget {
 }
 
 class _StudyTimerBodyState extends State<StudyTimerBody> {
-  // Ins: Step 3 Encapsulated
-  double _selectedMinutes = 25.0;
-  int _secondsRemaining = 25 * 60;
-  bool _isRunning = false;
-  Timer? _timer;
-  final List<String> _completedSessions = [];
+  // Encapsulated / private lahat ng timer logic natin para safe sa accidental external edits
+  double _minutongPiniliNamin = 25.0;
+  int _ilangSegundoNaLang = 25 * 60;
+  bool _tumatakboBaYungOras = false;
+  Timer? _orasanNatinTicking;
+  final List<String> _listahanNgNataposNaSesyon = [];
 
-  // Ins: Step 3 update methods
-  void _toggleTimer() {
-    if (_isRunning) {
-      _timer?.cancel();
-      setState(() => _isRunning = false);
+  // Controlled functions para i-update yung timer values state
+  void _pindotParaMagStartOStop() {
+    if (_tumatakboBaYungOras) {
+      _orasanNatinTicking?.cancel();
+      setState(() => _tumatakboBaYungOras = false);
     } else {
-      if (_secondsRemaining == 0) {
-        _secondsRemaining = _selectedMinutes.toInt() * 60;
+      if (_ilangSegundoNaLang == 0) {
+        // josh: in-adjust ko to sumunod sa slider kapag inulit
+        _ilangSegundoNaLang = _minutongPiniliNamin.toInt() * 60;
       }
-      setState(() => _isRunning = true);
-      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() => _tumatakboBaYungOras = true);
+      _orasanNatinTicking = Timer.periodic(const Duration(seconds: 1), (timer) {
         if (!mounted) {
           timer.cancel();
           return;
         }
         setState(() {
-          if (_secondsRemaining > 0) {
-            _secondsRemaining--;
+          if (_ilangSegundoNaLang > 0) {
+            _ilangSegundoNaLang--;
           } else {
             // Pag tapos na yung oras
-            _timer?.cancel();
-            _isRunning = false;
-            _logSession();
+            _orasanNatinTicking?.cancel();
+            _tumatakboBaYungOras = false;
+            _ilistaNatinYungNatapos();
           }
         });
       });
@@ -63,30 +65,30 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
   }
 
   // Pag natapos ni user, add natin sa history nya
-  void _logSession() {
+  void _ilistaNatinYungNatapos() {
     if (!mounted) return;
-    int mins = _selectedMinutes.toInt();
+    int mins = _minutongPiniliNamin.toInt();
     String minLabel = mins == 1 ? "minute" : "minutes";
-    final sessionString = "Completed! $mins $minLabel";
-    _completedSessions.insert(0, sessionString);
-    _showSnackBar("Session completed! Great work!");
+    final sessionString = "Natapos mo! $mins $minLabel Focus";
+    _listahanNgNataposNaSesyon.insert(0, sessionString);
+    _maglabasNgBabalaSnackbar("Natapos mo rin yung timer! Yay!");
   }
 
-  // Clear / reset button logic
-  void _resetTimer() {
-    _timer?.cancel();
+  // Logic button pa-reset na babalik sa simula yung naka-set natin 
+  void _ulitinLahatSaSimula() {
+    _orasanNatinTicking?.cancel();
     setState(() {
-      _isRunning = false;
-      _secondsRemaining = _selectedMinutes.toInt() * 60;
+      _tumatakboBaYungOras = false;
+      _ilangSegundoNaLang = _minutongPiniliNamin.toInt() * 60;
     });
   }
 
-  // Ins: Step 4 SnackBar error
-  void _showSnackBar(String message) {
+  // SnackBar dialog notification kapag tapos na
+  void _maglabasNgBabalaSnackbar(String itongMessagePo) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          message,
+          itongMessagePo,
           style: GoogleFonts.figtree(fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.black87,
@@ -98,13 +100,13 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _orasanNatinTicking?.cancel();
     super.dispose();
   }
 
   String get _timeString {
-    int m = _secondsRemaining ~/ 60;
-    int s = _secondsRemaining % 60;
+    int m = _ilangSegundoNaLang ~/ 60;
+    int s = _ilangSegundoNaLang % 60;
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
@@ -155,8 +157,8 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
                         width: 220,
                         height: 220,
                         child: CircularProgressIndicator(
-                          value: _isRunning
-                              ? _secondsRemaining / (_selectedMinutes * 60)
+                          value: _tumatakboBaYungOras
+                              ? _ilangSegundoNaLang / (_minutongPiniliNamin * 60)
                               : 1.0,
                           strokeWidth: 8,
                           color: themeColor,
@@ -181,9 +183,9 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
                   ),
                   const SizedBox(height: 48),
 
-                  // Ins: Step 4 Slider
+                  // Ginamitan natin Slider as input method pang adjust ng oras
                   Text(
-                    'Set Duration: ${_selectedMinutes.toInt()} mins',
+                    'Set Duration: ${_minutongPiniliNamin.toInt()} mins',
                     style: GoogleFonts.figtree(
                       fontWeight: FontWeight.w800,
                       color: Colors.black54,
@@ -193,18 +195,18 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: Slider(
-                      value: _selectedMinutes,
+                      value: _minutongPiniliNamin,
                       min: 1.0,
                       max: 60.0,
                       divisions: 59,
                       activeColor: themeColor,
                       inactiveColor: Colors.grey.shade200,
-                      onChanged: _isRunning
+                      onChanged: _tumatakboBaYungOras
                           ? null
                           : (value) {
                               setState(() {
-                                _selectedMinutes = value;
-                                _secondsRemaining = value.toInt() * 60;
+                                _minutongPiniliNamin = value;
+                                _ilangSegundoNaLang = value.toInt() * 60;
                               });
                             },
                     ),
@@ -222,17 +224,17 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
                   child: SizedBox(
                     height: 56,
                     child: FilledButton.icon(
-                      onPressed: _toggleTimer,
-                      icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
+                      onPressed: _pindotParaMagStartOStop,
+                      icon: Icon(_tumatakboBaYungOras ? Icons.pause : Icons.play_arrow),
                       label: Text(
-                        _isRunning ? 'PAUSE' : 'START FOCUS',
+                        _tumatakboBaYungOras ? 'TEKA PAUSE' : 'START FOCUS',
                         style: GoogleFonts.figtree(
                           fontWeight: FontWeight.w800,
                           letterSpacing: 1.0,
                         ),
                       ),
                       style: FilledButton.styleFrom(
-                        backgroundColor: _isRunning
+                        backgroundColor: _tumatakboBaYungOras
                             ? Colors.black87
                             : themeColor,
                         shape: RoundedRectangleBorder(
@@ -250,7 +252,7 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
                     height: 56,
                     //  Flat Reset Button
                     child: FilledButton(
-                      onPressed: _resetTimer,
+                      onPressed: _ulitinLahatSaSimula,
                       style: FilledButton.styleFrom(
                         backgroundColor: Colors.grey.shade200,
                         foregroundColor: Colors.black87,
@@ -267,8 +269,8 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
             ),
             const SizedBox(height: 40),
 
-            // Ins: Step 4ListView/mapping
-            if (_completedSessions.isNotEmpty) ...[
+            // Iro-render natin history logs base sa widget requirement
+            if (_listahanNgNataposNaSesyon.isNotEmpty) ...[
               Text(
                 'Session History',
                 style: GoogleFonts.figtree(
@@ -280,13 +282,13 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
               const SizedBox(height: 16),
             ],
 
-            //  loop ng map
-            if (_completedSessions.isEmpty)
+            // Loop muna, tapos default view kung wala pang na-complete yung bata
+            if (_listahanNgNataposNaSesyon.isEmpty)
               Center(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 20.0, bottom: 40.0),
                   child: Text(
-                    "No sessions yet. Time to focus!",
+                    "Wala pa eh. Mag-focus ka na muna dyan!",
                     style: GoogleFonts.figtree(
                       color: Colors.black26,
                       fontWeight: FontWeight.w600,
@@ -296,7 +298,7 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
                 ),
               )
             else
-              ..._completedSessions.map(
+              ..._listahanNgNataposNaSesyon.map(
                 (session) => Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.symmetric(

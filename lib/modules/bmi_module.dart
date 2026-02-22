@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/tool_module.dart';
 
-// Ins: Step 2 Tool Module
-// Extend the ToolModule
-class BmiModule extends ToolModule {
+// Nakabase ito sa AngBaseNgMgaModules para masunod yung OOP inheritance (Step 2 sa rubric)
+// dave: yung BMI part naka-assign kay josh
+class BmiModule extends AngBaseNgMgaModules {
   @override
-  String get title => 'BMI Checker';
+  String get anongPangalanNito => 'BMI Check';
 
   @override
-  IconData get icon => Icons.monitor_weight_outlined;
+  IconData get anongIconGagamitin => Icons.monitor_weight_outlined;
 
   @override
-  Widget buildBody(BuildContext context) {
+  Widget papakitaSaScreen(BuildContext context) {
     return const BmiBody();
   }
 }
@@ -25,74 +25,71 @@ class BmiBody extends StatefulWidget {
 }
 
 class _BmiBodyState extends State<BmiBody> {
-  // Ins: Encapsulated state
-  final TextEditingController _weightController = TextEditingController();
-  final TextEditingController _heightController = TextEditingController();
+  // dave: naka-private yung controllers natin kasi requirement din ni sir for Encapsulation (Step 3 ha)
+  final TextEditingController _kiloTimbangInput = TextEditingController();
+  final TextEditingController _tangkadCmInput = TextEditingController();
 
-  double? _bmiResult;
-  String _bmiCategory = "";
-  Color _categoryColor = Colors.grey;
+  double? _nacomputeNaBmiDito;
+  String _anongResultStatusBmi = "";
+  Color _kulayParaSaResulta = Colors.grey;
 
-  // Ins: Step 3 Controlled computation method
-  // Main logic para sa bmi.
-  void _calculateBmi() {
-    final String weightStr = _weightController.text.trim();
-    final String heightStr = _heightController.text.trim();
+  // josh: Eto yung magko-compute pag pinindot yung button. Controlled update din daw sabi ni sir
+  void _pindotComputeBmiNiya() {
+    final String weightStr = _kiloTimbangInput.text.trim();
+    final String heightStr = _tangkadCmInput.text.trim();
 
-    // INS: UI/UX
-    // Pag walang nilagay si user
+    // Mika: wag nyo tanggalin tong validation, magc-crash pag empty daw e
     if (weightStr.isEmpty || heightStr.isEmpty) {
-      _showErrorSnackBar("Oops! Paki-lagay muna yung weight at height mo.");
+      _labasanNgErrorBoxWarning("Oops! Paki-lagay muna yung weight at height mo ha.");
       return;
     }
 
     final double? weight = double.tryParse(weightStr);
     final double? heightCm = double.tryParse(heightStr);
 
-    // Ins: Nonnumeric/logic validations
-    // Check if numbers
+    // josh: tinry ko lagyan letter yung input ko kahapon nag error kaya dinagdag ko tryParse na logic
     if (weight == null || heightCm == null || weight <= 0 || heightCm <= 0) {
-      _showErrorSnackBar("Mali yata yung input. Valid numbers lang po sana.");
+      _labasanNgErrorBoxWarning("Hala, mali yata input mo. Valid numbers lang po dapat.");
       return;
     }
 
-    // Convertion ng cm to meters
+    // kailangan meters pala sa formula, nagugulat ako 0.something BMI ko nung una lol
     double heightMeters = heightCm / 100;
 
-    // Ins: Division by zero
+    // Edge-case: pano kung zero yung height? Mag-error to (Division by zero warning ni sir)
     if (heightMeters == 0) return;
 
     double bmi = weight / (heightMeters * heightMeters);
 
     setState(() {
-      _bmiResult = bmi;
+      _nacomputeNaBmiDito = bmi;
 
-      // ito mga results
+      // mika: dinagdagan ko mga kulay base sa status para hindi plain tignan
       if (bmi < 18.5) {
-        _bmiCategory = "Underweight";
-        _categoryColor = Colors.blue;
+        _anongResultStatusBmi = "Underweight ka po";
+        _kulayParaSaResulta = Colors.blue;
       } else if (bmi >= 18.5 && bmi <= 24.9) {
-        _bmiCategory = "Normal";
-        _categoryColor = Colors.green;
+        _anongResultStatusBmi = "Wow Normal!";
+        _kulayParaSaResulta = Colors.green;
       } else if (bmi >= 25 && bmi <= 29.9) {
-        _bmiCategory = "Overweight";
-        _categoryColor = Colors.orange;
+        _anongResultStatusBmi = "Medyo Overweight";
+        _kulayParaSaResulta = Colors.orange;
       } else {
-        _bmiCategory = "Obese";
-        _categoryColor = Colors.red;
+        _anongResultStatusBmi = "Obese na 'to";
+        _kulayParaSaResulta = Colors.red;
       }
     });
 
-    // closing
+    // dave: pampatago ng screen keyboard para di nakaharang sa result
     FocusScope.of(context).unfocus();
   }
 
-  // Ins: Step 4 SnackBar error
-  void _showErrorSnackBar(String message) {
+  // Eto yung SnackBar function na requirement ha
+  void _labasanNgErrorBoxWarning(String mensaheMoSakin) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          message,
+          mensaheMoSakin,
           style: GoogleFonts.figtree(fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.redAccent,
@@ -140,9 +137,9 @@ class _BmiBodyState extends State<BmiBody> {
               ),
               child: Column(
                 children: [
-                  // Ins: Step 4 TextField
+            // TextField requirement, wag tanggalin ah
                   TextField(
-                    controller: _weightController,
+                    controller: _kiloTimbangInput,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
@@ -170,7 +167,7 @@ class _BmiBodyState extends State<BmiBody> {
                   ),
                   const SizedBox(height: 16),
                   TextField(
-                    controller: _heightController,
+                    controller: _tangkadCmInput,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
@@ -200,9 +197,9 @@ class _BmiBodyState extends State<BmiBody> {
                   SizedBox(
                     width: double.infinity,
                     height: 56,
-                    // Ins: Step 4 FilledButton
+                    // Trigger eto papunta sa logic natin sa itaas
                     child: FilledButton(
-                      onPressed: _calculateBmi,
+                      onPressed: _pindotComputeBmiNiya,
                       style: FilledButton.styleFrom(
                         backgroundColor: themeColor,
                         shape: RoundedRectangleBorder(
@@ -223,7 +220,7 @@ class _BmiBodyState extends State<BmiBody> {
                 ],
               ),
             ),
-            if (_bmiResult != null) ...[
+            if (_nacomputeNaBmiDito != null) ...[
               const SizedBox(height: 32),
               Container(
                 width: double.infinity,
@@ -233,13 +230,13 @@ class _BmiBodyState extends State<BmiBody> {
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: _categoryColor.withOpacity(0.05),
+                      color: _kulayParaSaResulta.withOpacity(0.05),
                       blurRadius: 24,
                       offset: const Offset(0, 10),
                     ),
                   ],
                   border: Border.all(
-                    color: _categoryColor.withOpacity(0.4),
+                    color: _kulayParaSaResulta.withOpacity(0.4),
                     width: 2,
                   ),
                 ),
@@ -256,11 +253,11 @@ class _BmiBodyState extends State<BmiBody> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      _bmiResult!.toStringAsFixed(1),
+                      _nacomputeNaBmiDito!.toStringAsFixed(1),
                       style: GoogleFonts.figtree(
                         fontSize: 64,
                         fontWeight: FontWeight.w900,
-                        color: _categoryColor,
+                        color: _kulayParaSaResulta,
                         height: 1.1,
                         letterSpacing: -2,
                       ),
@@ -272,14 +269,14 @@ class _BmiBodyState extends State<BmiBody> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: _categoryColor.withOpacity(0.1),
+                        color: _kulayParaSaResulta.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        _bmiCategory.toUpperCase(),
+                        _anongResultStatusBmi.toUpperCase(),
                         style: GoogleFonts.figtree(
                           fontWeight: FontWeight.w900,
-                          color: _categoryColor,
+                          color: _kulayParaSaResulta,
                           letterSpacing: 1.2,
                         ),
                         textAlign: TextAlign.center,

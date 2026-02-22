@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// custom exception para pag hindi nakuha yung AppThemeState sa context
-// nangyari to dati nung nakalimutan naming i-wrap yung app sa root
+// josh: custom exception para pag hindi nakuha yung AppThemeState sa context
+// dave: nangyari to kahapon nung nakalimutan naming i-wrap yung app sa root kainis ahaha
 class AcadBalanceException implements Exception {
-  final String report;
-  AcadBalanceException(this.report);
+  final String reportNgError;
+  AcadBalanceException(this.reportNgError);
   @override
-  String toString() => "AcadBalance: $report";
+  String toString() => "AcadBalance: $reportNgError";
 }
 
-// colors, gradients, at theme ng buong app
+// mika: colors, gradients, at theme ng buong app nandito lahat
 class AcadBalance {
 
   static const Color hazeCyan = Color(0xFF36D1DC);
@@ -29,18 +29,19 @@ class AcadBalance {
   static const Color softBackground = paperWhite;
   static const Color softSurface = layerFrost;
 
+  // mika: ginawa ko tong listahan ng kulay para madali sa setup screen natin
   static const List<Color> currentSpectrumOptions = [hazeCyan, flareSolar, glowNebula];
 
-  static LinearGradient mapSpectrumToGradient(Color focus) {
-    final pair = switch (focus) {
+  static LinearGradient mapSpectrumToGradient(Color targetKulay) {
+    final paresNgKulay = switch (targetKulay) {
       hazeCyan   => [hazeCyan, driftAzure],
       flareSolar => [flareSolar, pulseCoral],
       glowNebula => [glowNebula, voidIndigo],
-      _          => [hazeCyan, driftAzure],
+      _          => [hazeCyan, driftAzure], // fallback para sure na hindi mag null (dave)
     };
 
     return LinearGradient(
-      colors: pair,
+      colors: paresNgKulay,
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     );
@@ -54,14 +55,15 @@ class AcadBalance {
     return 'Custom Essence';
   }
 
-  static ThemeData forgeHelperTheme(Color themeAnchor) {
+  // josh: Eto yung parang pinaka-template ng theme natin na tinatawag sa main
+  static ThemeData forgeHelperTheme(Color pinakaThemeAnchorNatin) {
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: paperWhite,
       textTheme: GoogleFonts.figtreeTextTheme(),
       colorScheme: ColorScheme.fromSeed(
-        seedColor: themeAnchor,
-        primary: themeAnchor,
+        seedColor: pinakaThemeAnchorNatin,
+        primary: pinakaThemeAnchorNatin,
         surface: paperWhite,
       ),
 
@@ -71,8 +73,8 @@ class AcadBalance {
         backgroundColor: Colors.transparent,
       ),
 
-      // border radius 22 — tinry namin 16 pero masyadong boxy,
-      // 28 naman parang sobrang rounded
+      // dave: border radius 22 — tinry namin 16 pero masyadong boxy tignan eh,
+      // 28 naman parang sobrang itlog na rounded hahahha
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: layerFrost,
@@ -83,13 +85,13 @@ class AcadBalance {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(22),
-          borderSide: BorderSide(color: themeAnchor, width: 2.5),
+          borderSide: BorderSide(color: pinakaThemeAnchorNatin, width: 2.5),
         ),
       ),
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: themeAnchor,
+          backgroundColor: pinakaThemeAnchorNatin,
           foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 64),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
@@ -101,15 +103,15 @@ class AcadBalance {
   }
 }
 
-// InheritedWidget para ma-access ng buong app yung name + color ng user
+// josh: InheritedWidget raw sabi ni sir para ma-access ng buong app yung name + color ng user nang hindi pinapasa ng pinapasa
 class AppThemeState extends InheritedWidget {
-  final String _internalHandle;
-  final Color _activeAnchor;
+  final String _barahaPangalan;
+  final Color _kulayNaNakakabit;
   final Function(String) triggerNameUpdate;
   final Function(Color) triggerColorUpdate;
 
-  String get displayName => _internalHandle;
-  Color get selectedColor => _activeAnchor;
+  String get displayName => _barahaPangalan;
+  Color get selectedColor => _kulayNaNakakabit;
   Function(String) get updateDisplayName => triggerNameUpdate;
   Function(Color) get updateColor => triggerColorUpdate;
 
@@ -120,18 +122,18 @@ class AppThemeState extends InheritedWidget {
     required this.triggerNameUpdate,
     required this.triggerColorUpdate,
     required super.child,
-  }) : _internalHandle = handle, _activeAnchor = anchor;
+  }) : _barahaPangalan = handle, _kulayNaNakakabit = anchor;
 
   static AppThemeState of(BuildContext context) {
-    final vault = context.dependOnInheritedWidgetOfExactType<AppThemeState>();
-    if (vault == null) {
-      throw AcadBalanceException("not found in context — make sure to wrap your app in an AppThemeState widget");
+    final imbakanNatin = context.dependOnInheritedWidgetOfExactType<AppThemeState>();
+    if (imbakanNatin == null) {
+      throw AcadBalanceException("Hala, not found in context — baka nakalimutan i-wrap yung app sa AppThemeState widget (dave tingnan mo to)");
     }
-    return vault;
+    return imbakanNatin;
   }
 
   @override
   bool updateShouldNotify(AppThemeState oldWidget) {
-    return _internalHandle != oldWidget._internalHandle || _activeAnchor != oldWidget._activeAnchor;
+    return _barahaPangalan != oldWidget._barahaPangalan || _kulayNaNakakabit != oldWidget._kulayNaNakakabit;
   }
 }

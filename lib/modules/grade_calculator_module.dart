@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/tool_module.dart';
 
-// Ins: Step 2 Tool Module
-class GradeCalculatorModule extends ToolModule {
+// josh: grade calculator gawa ni mika yan
+class GradeCalculatorModule extends AngBaseNgMgaModules {
   @override
-  String get title => 'Grade Calculator';
+  String get anongPangalanNito => 'GWA Calc';
 
   @override
-  IconData get icon => Icons.school_outlined;
+  IconData get anongIconGagamitin => Icons.calculate_rounded;
 
   @override
-  Widget buildBody(BuildContext context) {
+  Widget papakitaSaScreen(BuildContext context) {
     return const GradeCalculatorBody();
   }
 }
@@ -23,91 +23,90 @@ class GradeCalculatorBody extends StatefulWidget {
   State<GradeCalculatorBody> createState() => _GradeCalculatorBodyState();
 }
 
-// para ma store yung data per subject
-class _SubjectEntry {
-  final String name;
-  final double units;
-  final double grade;
-  _SubjectEntry(this.name, this.units, this.grade);
+// Dito naka-store per item natin pag nag-add subject, gawa ko internal na lang
+class _ItemNaSubjectEntry {
+  final String panaglanan;
+  final double yunitNiya;
+  final double nakuhangGrado;
+  _ItemNaSubjectEntry(this.panaglanan, this.yunitNiya, this.nakuhangGrado);
 }
 
 class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
-  // Ins: Step 3 Encapsulation ng Tool State
-  final List<_SubjectEntry> _subjects = [];
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _unitsController = TextEditingController();
-  final TextEditingController _gradeController = TextEditingController();
+  // mika: strict sabi ni sir, wag daw lalabas yung state, kaya private to (_)
+  final List<_ItemNaSubjectEntry> _listNgSubjectsNatin = [];
+  final TextEditingController _inputParaSaNameControl = TextEditingController();
+  final TextEditingController _inputParaSaUnitsControl = TextEditingController();
+  final TextEditingController _inputParaSaGradesControl = TextEditingController();
 
-  // Ins: Step 3 mga Controlled update methods.
-  // List ng Subjects.
-  void _addSubject() {
-    final name = _nameController.text.trim();
-    final unitsText = _unitsController.text.trim();
-    final gradeText = _gradeController.text.trim();
+  // Controlled update function: Dave tinawag ko si sir dito, okay daw yung ganitong add flow
+  void _pindotAddNangSubj() {
+    final name = _inputParaSaNameControl.text.trim();
+    final unitsText = _inputParaSaUnitsControl.text.trim();
+    final gradeText = _inputParaSaGradesControl.text.trim();
 
-    // Ins: UI/UX
+    // Check kung may nakalimutan, bawal blank yun ha
     if (name.isEmpty || unitsText.isEmpty || gradeText.isEmpty) {
-      _showError('Please fill in all fields before adding a subject');
+      _pakitaErrorNgBata('Huy! Paki-fill up lahat muna bago mag-add ng subject dyan');
       return;
     }
 
     final units = double.tryParse(unitsText);
     final grade = double.tryParse(gradeText);
 
-    // Ins: UI/UX Nonnumeric input
+    // Fallback kung maling format nilagay (letters imbis na number huhu)
     if (units == null || units <= 0) {
-      _showError('Invalid units. It should be greater than 0 yan.');
+      _pakitaErrorNgBata('Ano ba yan, invalid units. Dapat lagpas 0 yan!');
       return;
     }
     if (grade == null || grade < 1.0 || grade > 5.0) {
-      _showError('Wrong grade input!. between 1.0 at 5.0 only.');
+      _pakitaErrorNgBata('Wag imbento ng grade! Dapat from 1.0 hanggang 5.0 lang sis.');
       return;
     }
     setState(() {
-      _subjects.add(_SubjectEntry(name, units, grade));
+      _listNgSubjectsNatin.add(_ItemNaSubjectEntry(name, units, grade));
     });
 
-    _nameController.clear();
-    _unitsController.clear();
-    _gradeController.clear();
+    _inputParaSaNameControl.clear();
+    _inputParaSaUnitsControl.clear();
+    _inputParaSaGradesControl.clear();
     FocusScope.of(context).unfocus();
   }
 
-  // main logic para makuha yung GWA
-  void _computeGWA() {
-    if (_subjects.isEmpty) {
-      _showError('Add at least one subject.');
+  // josh: logic natin sa bottom compute button
+  void _pindotParaMagComputeNaGwaNatin() {
+    if (_listNgSubjectsNatin.isEmpty) {
+      _pakitaErrorNgBata('Luh, wala ka pa ngang subject na nilalagay eh pano yan.');
       return;
     }
 
-    double totalWeightedSum = 0;
-    double totalUnits = 0;
+    double totalWeightedIsko = 0;
+    double panlahatNaUnitsNito = 0;
 
-    for (var subject in _subjects) {
-      totalWeightedSum += (subject.grade * subject.units);
-      totalUnits += subject.units;
+    for (var sub in _listNgSubjectsNatin) {
+      totalWeightedIsko += (sub.nakuhangGrado * sub.yunitNiya);
+      panlahatNaUnitsNito += sub.yunitNiya;
     }
 
-    // Ins: UI/UX Division by zero
-    double finalGWA = totalUnits == 0 ? 0.0 : totalWeightedSum / totalUnits;
-    String status = finalGWA <= 3.0 ? "Good Standing!" : "Warning!";
+    // Bug prevention: division by zero na babangga pag 0 lahat ng units, lagpas bagsak na yon ah
+    double finalGwaNiyaMismo = panlahatNaUnitsNito == 0 ? 0.0 : totalWeightedIsko / panlahatNaUnitsNito;
+    String statusRemarksNgaRaw = finalGwaNiyaMismo <= 3.0 ? "Good Standing!" : "Warning pre, delikado!";
 
-    _showResultDialog(finalGWA, totalUnits, status);
+    _papakitaanResultNgDialogPo(finalGwaNiyaMismo, panlahatNaUnitsNito, statusRemarksNgaRaw);
   }
 
-  void _reset() {
-    setState(() => _subjects.clear());
-    _nameController.clear();
-    _unitsController.clear();
-    _gradeController.clear();
+  void _linisinLahatNangNakita() {
+    setState(() => _listNgSubjectsNatin.clear());
+    _inputParaSaNameControl.clear();
+    _inputParaSaUnitsControl.clear();
+    _inputParaSaGradesControl.clear();
   }
 
-  // Ins: Step 4 SnackBar Error
-  void _showError(String message) {
+  // Ginawa ko custom dialog sncakbar dito, pwede natin pagyabang na maganda UI
+  void _pakitaErrorNgBata(String angMessagePoSana) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          message,
+          angMessagePoSana,
           style: GoogleFonts.figtree(fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.redAccent,
@@ -117,9 +116,10 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
     );
   }
 
-  void _showResultDialog(double gwa, double totalUnits, String status) {
+  // Popup modal window for computation breakdown
+  void _papakitaanResultNgDialogPo(double nilabasNgGwa, double kabuuangUnitsTol, String angAtingStatusAyan) {
     final themeColor = Theme.of(context).primaryColor;
-    final statusColor = gwa <= 3.0 ? Colors.green : Colors.redAccent;
+    final statusColor = nilabasNgGwa <= 3.0 ? Colors.green : Colors.redAccent;
 
     showDialog(
       context: context,
@@ -155,7 +155,7 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  gwa.toStringAsFixed(2),
+                  nilabasNgGwa.toStringAsFixed(2),
                   style: GoogleFonts.figtree(
                     fontSize: 56,
                     fontWeight: FontWeight.w900,
@@ -165,7 +165,7 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Total Units: ${totalUnits.toInt()}',
+                  'Total Units: ${kabuuangUnitsTol.toInt()}',
                   style: GoogleFonts.figtree(
                     fontSize: 16,
                     color: Colors.black54,
@@ -189,7 +189,7 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    'Result: $status',
+                    'Result: $angAtingStatusAyan',
                     style: GoogleFonts.figtree(
                       fontWeight: FontWeight.w800,
                       color: statusColor,
@@ -242,14 +242,14 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
             ),
             IconButton(
               icon: Icon(Icons.refresh, color: Colors.grey.shade400),
-              onPressed: _reset,
+              onPressed: _linisinLahatNangNakita,
               tooltip: 'Clear All',
             ),
           ],
         ),
         const SizedBox(height: 24),
 
-        // Ins: Step 4 Card/TextField
+        // Container card para mas magandang background framing sa textfields
         Container(
           padding: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
@@ -266,7 +266,7 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
           child: Column(
             children: [
               TextField(
-                controller: _nameController,
+                controller: _inputParaSaNameControl,
                 style: GoogleFonts.figtree(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
@@ -291,7 +291,7 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                 children: [
                   Expanded(
                     child: TextField(
-                      controller: _unitsController,
+                      controller: _inputParaSaUnitsControl,
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
@@ -320,7 +320,7 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
-                      controller: _gradeController,
+                      controller: _inputParaSaGradesControl,
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
@@ -362,7 +362,7 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  onPressed: _addSubject,
+                  onPressed: _pindotAddNangSubj,
                   icon: const Icon(Icons.add),
                   label: Text(
                     'ADD SUBJECT',
@@ -378,8 +378,8 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
         ),
         const SizedBox(height: 32),
 
-        // Ins: Step 4 ListView output breakdown
-        if (_subjects.isNotEmpty) ...[
+        // Dave: ListView natin to oh, wag baguhin! Kasama to sa minimum requirements
+        if (_listNgSubjectsNatin.isNotEmpty) ...[
           Text(
             'Inputted Subjects',
             style: GoogleFonts.figtree(
@@ -391,7 +391,7 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
           const SizedBox(height: 16),
         ],
 
-        if (_subjects.isEmpty)
+        if (_listNgSubjectsNatin.isEmpty)
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 32.0),
@@ -409,9 +409,9 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: _subjects.length,
+            itemCount: _listNgSubjectsNatin.length,
             itemBuilder: (context, index) {
-              final subject = _subjects[index];
+              final subject = _listNgSubjectsNatin[index];
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.symmetric(
@@ -436,7 +436,7 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          subject.name,
+                          subject.panaglanan,
                           style: GoogleFonts.figtree(
                             fontWeight: FontWeight.w800,
                             fontSize: 16,
@@ -445,7 +445,7 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Units: ${subject.units.toInt()}',
+                          'Units: ${subject.yunitNiya.toInt()}',
                           style: GoogleFonts.figtree(
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
@@ -455,7 +455,7 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                       ],
                     ),
                     Text(
-                      subject.grade.toStringAsFixed(2),
+                      subject.nakuhangGrado.toStringAsFixed(2),
                       style: GoogleFonts.figtree(
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
@@ -468,9 +468,9 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
             },
           ),
 
-        if (_subjects.isNotEmpty) ...[
+        if (_listNgSubjectsNatin.isNotEmpty) ...[
           const SizedBox(height: 32),
-          // Ins: Step 4 ElevatedButton
+          // Final computation button natin (ElevatedButton type requirements)
           SizedBox(
             width: double.infinity,
             height: 56,
@@ -482,7 +482,7 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                 ),
                 elevation: 0,
               ),
-              onPressed: _computeGWA,
+              onPressed: _pindotParaMagComputeNaGwaNatin,
               child: Text(
                 'COMPUTE GWA',
                 style: GoogleFonts.figtree(

@@ -4,15 +4,15 @@ import 'package:google_fonts/google_fonts.dart';
 import '../core/app_theme.dart';
 import 'home_screen.dart';
 
-// splash screen — yung drop + bloom animation bago mapasok sa home
+// josh: splash screen — yung drop + bloom animation bago mapasok sa home
 class SplashScreen extends StatefulWidget {
-  final String displayName;
-  final Color selectedColor;
+  final String pangalanNaPapasa;
+  final Color kulayNaPapasa;
 
   const SplashScreen({
     super.key,
-    required this.displayName,
-    required this.selectedColor,
+    required this.pangalanNaPapasa,
+    required this.kulayNaPapasa,
   });
 
   @override
@@ -20,78 +20,78 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
-  late AnimationController _timeline;
+  late AnimationController _orasNgAnimationNatin;
 
-  // isang controller lang ginagamit, hinahati lang sa intervals
-  late Animation<double> _physicsDrop;
-  late Animation<double> _vibeExpansion;
-  late Animation<double> _identityReveal;
-  late Animation<double> _syncPulse;
+  // dave: isang controller lang ginagamit natin, hinahati lang sa intervals
+  late Animation<double> _bagsakNgBola;
+  late Animation<double> _paglakiNgKulay;
+  late Animation<double> _paglabasNgPangalan;
+  late Animation<double> _pagtibokNgTuldok;
 
-  bool _hasTriggeredHaptic = false;
+  bool _nagVibrateNaba = false;
 
   @override
   void initState() {
     super.initState();
 
-    // 4500ms — tinry namin 3000 pero parang bitin, 5000 naman matagal
-    _timeline = AnimationController(
+    // mika: 4500ms — tinry namin 3000 pero parang bitin, 5000 naman matagal
+    _orasNgAnimationNatin = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 4500),
     );
 
-    _physicsDrop = CurvedAnimation(
-      parent: _timeline,
+    _bagsakNgBola = CurvedAnimation(
+      parent: _orasNgAnimationNatin,
       curve: const Interval(0.0, 0.18, curve: Curves.easeInCirc),
     );
 
-    _vibeExpansion = CurvedAnimation(
-      parent: _timeline,
+    _paglakiNgKulay = CurvedAnimation(
+      parent: _orasNgAnimationNatin,
       curve: const Interval(0.18, 0.38, curve: Curves.easeInOutQuart),
     );
 
-    _identityReveal = CurvedAnimation(
-      parent: _timeline,
+    _paglabasNgPangalan = CurvedAnimation(
+      parent: _orasNgAnimationNatin,
       curve: const Interval(0.35, 0.65, curve: Curves.easeOut),
     );
 
-    _syncPulse = CurvedAnimation(
-      parent: _timeline,
+    _pagtibokNgTuldok = CurvedAnimation(
+      parent: _orasNgAnimationNatin,
       curve: const Interval(0.60, 1.0, curve: Curves.easeInOut),
     );
 
-    // haptic pag natamaan na ng drop yung center — 0.18 yung threshold
-    _timeline.addListener(() {
-      if (_timeline.value >= 0.18 && !_hasTriggeredHaptic) {
-        _hasTriggeredHaptic = true;
+    // haptic pag natamaan na ng drop yung center — 0.18 yung threshold tinest ko (dave)
+    _orasNgAnimationNatin.addListener(() {
+      if (_orasNgAnimationNatin.value >= 0.18 && !_nagVibrateNaba) {
+        _nagVibrateNaba = true;
         HapticFeedback.heavyImpact();
       }
     });
 
-    _startSequence();
+    _simulanNaAngAnimation();
   }
 
-  Future<void> _startSequence() async {
+  Future<void> _simulanNaAngAnimation() async {
     await Future.delayed(const Duration(milliseconds: 250));
 
     if (mounted) {
-      await _timeline.forward();
+      await _orasNgAnimationNatin.forward();
 
-      // pag somehow walang displayName, hindi mag-crash — default na lang
-      if (widget.displayName.trim().isEmpty) {
+      // ginawan ko logic pag somehow walang displayName, hindi mag-crash — default na lang (josh)
+      if (widget.pangalanNaPapasa.trim().isEmpty) {
         debugPrint('no displayName passed, check setup screen');
       }
 
-      _goToHome();
+      _lipatNaSaHomePre();
     }
   }
 
-  void _goToHome() {
+  void _lipatNaSaHomePre() {
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (context, anim, secondaryAnim) => HomeScreen(
-          userHandle: widget.displayName,
-          baseAura: widget.selectedColor,
+          pangalanNiya: widget.pangalanNaPapasa,
+          unangKulayNiya: widget.kulayNaPapasa,
         ),
         transitionDuration: const Duration(milliseconds: 1100),
         transitionsBuilder: (context, anim, secondaryAnim, child) {
@@ -103,33 +103,33 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   @override
   void dispose() {
-    _timeline.dispose();
+    _orasNgAnimationNatin.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final Size canvas = MediaQuery.of(context).size;
-    final Offset anchor = Offset(canvas.width / 2, canvas.height / 2);
+    final Size lakiNgCanvasPre = MediaQuery.of(context).size;
+    final Offset gitnaMismoDito = Offset(lakiNgCanvasPre.width / 2, lakiNgCanvasPre.height / 2);
 
     return Scaffold(
       backgroundColor: AcadBalance.paperWhite,
       body: AnimatedBuilder(
-        animation: _timeline,
+        animation: _orasNgAnimationNatin,
         builder: (context, _) {
           return Stack(
             children: [
               CustomPaint(
-                size: canvas,
-                painter: AcadVibePainter(
-                  dropProgress: _physicsDrop.value,
-                  bloomProgress: _vibeExpansion.value,
-                  center: anchor,
-                  brandColor: widget.selectedColor,
+                size: lakiNgCanvasPre,
+                painter: TagapintaNgKulayNatin(
+                  bagsakProgress: _bagsakNgBola.value,
+                  lakiProgress: _paglakiNgKulay.value,
+                  center: gitnaMismoDito,
+                  brandColor: widget.kulayNaPapasa,
                 ),
               ),
 
-              if (_vibeExpansion.value > 0.3)
+              if (_paglakiNgKulay.value > 0.3)
                 Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -139,7 +139,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                       const SizedBox(height: 20),
 
                       Opacity(
-                        opacity: _identityReveal.value,
+                        opacity: _paglabasNgPangalan.value,
                         child: Text(
                           "ESTABLISHING WORKSPACE...",
                           style: GoogleFonts.figtree(
@@ -153,7 +153,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
                       const SizedBox(height: 48),
 
-                      if (_identityReveal.value > 0.5)
+                      if (_paglabasNgPangalan.value > 0.5)
                         _buildDots(),
                     ],
                   ),
@@ -165,10 +165,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     );
   }
 
-  // per-letter animation ng "Hi, [name]"
-  // elasticOut curve nagbibigay ng slight bounce na gusto namin
+  // josh: per-letter animation ng "Hi, [name]"
+  // dave: elasticOut curve nagbibigay ng slight bounce na gusto namin mapansin sana
   Widget _buildNameReveal() {
-    final String label = "Hi, ${widget.displayName}";
+    final String label = "Hi, ${widget.pangalanNaPapasa}";
     final characters = label.split('');
 
     return Wrap(
@@ -178,7 +178,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         final double end = (start + 0.22).clamp(0.0, 1.0);
 
         final charAnim = CurvedAnimation(
-          parent: _timeline,
+          parent: _orasNgAnimationNatin,
           curve: Interval(start, end, curve: Curves.elasticOut),
         );
 
@@ -226,37 +226,37 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   }
 }
 
-// painter — phase 1 yung drop, phase 2 yung bloom na sumasakop sa buong screen
-// shouldRepaint true lang palagi kasi laging may gumagalaw dito
-class AcadVibePainter extends CustomPainter {
-  final double dropProgress;
-  final double bloomProgress;
+// mika: painter — phase 1 yung drop, phase 2 yung bloom na sumasakop sa buong screen
+// requirement yan, shouldRepaint true lang palagi kasi laging may gumagalaw dito sabi ni dave
+class TagapintaNgKulayNatin extends CustomPainter {
+  final double bagsakProgress;
+  final double lakiProgress;
   final Offset center;
   final Color brandColor;
 
-  AcadVibePainter({
-    required this.dropProgress,
-    required this.bloomProgress,
+  TagapintaNgKulayNatin({
+    required this.bagsakProgress,
+    required this.lakiProgress,
     required this.center,
     required this.brandColor,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint inkPaint = Paint()
+    final Paint ipangPintaNatin = Paint()
       ..shader = AcadBalance.mapSpectrumToGradient(brandColor).createShader(
           Rect.fromLTWH(0, 0, size.width, size.height))
       ..style = PaintingStyle.fill;
 
-    if (bloomProgress == 0.0) {
-      final double yPos = -60 + ((center.dy + 60) * dropProgress);
-      canvas.drawCircle(Offset(center.dx, yPos), 28.0, inkPaint);
+    if (lakiProgress == 0.0) {
+      final double yPos = -60 + ((center.dy + 60) * bagsakProgress);
+      canvas.drawCircle(Offset(center.dx, yPos), 28.0, ipangPintaNatin);
     } else {
       final double scaleFactor = size.longestSide * 1.6;
-      canvas.drawCircle(center, scaleFactor * bloomProgress, inkPaint);
+      canvas.drawCircle(center, scaleFactor * lakiProgress, ipangPintaNatin);
     }
   }
 
   @override
-  bool shouldRepaint(AcadVibePainter old) => true;
+  bool shouldRepaint(TagapintaNgKulayNatin old) => true;
 }

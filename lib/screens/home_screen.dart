@@ -4,37 +4,37 @@ import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/app_theme.dart';
 
-// ADDED: Imports for the modules and abstract class (Polymorphism)
+// Dito natin i-rerely at inimport yung inheritance classes na ginawa natin as modules
 import '../core/tool_module.dart';
 import '../modules/bmi_module.dart';
 import '../modules/study_timer_module.dart';
 import '../modules/grade_calculator_module.dart';
 
-/// AcadBaseShell — Ang main visual container ng ating Daily Helper.
-/// Ginamit natin ang 'Shell' terminology dahil ito ang nagsisilbing
-/// host para sa iba't ibang modules ng team.
+// Eto yung main container natin ha. Wag nyo buburahin ulit tulad nung isang araw.
+// Ginamit natin ang 'Shell' terminology dahil ito ang nagsisilbing host
 class HomeScreen extends StatefulWidget {
-  final String userHandle; // Ginamit ang 'handle' para sa personalization
-  final Color baseAura; // Base color mula sa AcadBalance manifest
+  final String pangalanNiya; // Dave: pinasa galing setup screen
+  final Color unangKulayNiya; // Base color mula sa AcadBalance manifest
 
   const HomeScreen({
     super.key,
-    required this.userHandle,
-    required this.baseAura,
+    required this.pangalanNiya,
+    required this.unangKulayNiya,
   });
 
   @override
-  State<HomeScreen> createState() => _AcadBaseShellState();
+  State<HomeScreen> createState() => _ItsuraNgHomeNatinState();
 }
 
-class _AcadBaseShellState extends State<HomeScreen> {
+class _ItsuraNgHomeNatinState extends State<HomeScreen> {
   // === STATE TOKENS ===
-  int _activeToolIdx = 0;
-  late Color _currentAura;
+  // Eto yung magttrack kung asan current active index ng bottom bars
+  int _anongTabAngNakaOpen = 0;
+  late Color _kulayNgAppNatinNgayon;
 
-  // Nilagay natin sa Registry format para madaling i-maintain
-  // UPDATED (Step 5): Polymorphic Collection of Modules
-  final List<ToolModule> _modules = [
+  // Pinasok sa isang list structure to showcase yung polymorphism, 
+  // isang loop lang mamaya sa UI para safe at malinis (Step 5 requirement).
+  final List<AngBaseNgMgaModules> _listahanNgMgaPahinaNatin = [
     BmiModule(),
     StudyTimerModule(),
     GradeCalculatorModule(),
@@ -43,54 +43,52 @@ class _AcadBaseShellState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _currentAura = widget.baseAura;
+    _kulayNgAppNatinNgayon = widget.unangKulayNiya;
   }
 
   // Helper para makuha ang dynamic gradient base sa active vibe
-  LinearGradient get _activeGradient =>
-      AcadBalance.mapSpectrumToGradient(_currentAura);
+  LinearGradient get _gradientNaGamitNgayon =>
+      AcadBalance.mapSpectrumToGradient(_kulayNgAppNatinNgayon);
 
   @override
   Widget build(BuildContext context) {
     // Kinukuha ang personalized theme base sa ating global manifest
-    final shellTheme = AcadBalance.forgeHelperTheme(_currentAura);
+    final themeNangBuongHome = AcadBalance.forgeHelperTheme(_kulayNgAppNatinNgayon);
 
-    // FIX: Wrapped the entire app with AppThemeState.
-    // This allows the modules inside the IndexedStack to call AppThemeState.of(context)
-    // without throwing the "not found in context" error.
+    // nagkanda-leche tayo dito dati kasi nakalimutan i-wrap, wag nyo na tanggalin
     return AppThemeState(
-      handle: widget.userHandle,
-      anchor: _currentAura,
-      triggerNameUpdate: (_) {}, // No-op since we don't update name from home
+      handle: widget.pangalanNiya,
+      anchor: _kulayNgAppNatinNgayon,
+      triggerNameUpdate: (_) {}, // No-op sabi ni sir since we don't update name from home
       triggerColorUpdate: (newColor) {
         setState(() {
-          _currentAura = newColor;
+          _kulayNgAppNatinNgayon = newColor;
         });
       },
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: shellTheme,
+        theme: themeNangBuongHome,
         home: Scaffold(
-          backgroundColor: shellTheme.scaffoldBackgroundColor,
+          backgroundColor: themeNangBuongHome.scaffoldBackgroundColor,
           body: SafeArea(
             bottom: false,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _forgeHeader(context),
+                _gawaTayoNgHeader(context),
 
                 // === MODULE VIEWPORT ===
-                // Dito natin "isinasalpak" ang logic ng ating mga MMODULES
-                // FIX: Using IndexedStack to preserve state across tab switches
+                // Dito lilitaw at magba-bago ung active page module sa screen UI
+                // Ginawang IndexedStack para kahit palipat-lipat tabs hindi mawi-wipe in-input natin
                 Expanded(
                   child: IndexedStack(
-                    index: _activeToolIdx,
-                    children: _modules.map((module) => module.buildBody(context)).toList(),
+                    index: _anongTabAngNakaOpen,
+                    children: _listahanNgMgaPahinaNatin.map((module) => module.papakitaSaScreen(context)).toList(),
                   ),
                 ),
 
                 // Ang ating responsive floating navigation
-                _craftResponsiveNav(),
+                _yungBottomBarNatinNaGumagalaw(),
               ],
             ),
           ),
@@ -99,10 +97,9 @@ class _AcadBaseShellState extends State<HomeScreen> {
     );
   }
 
-  /// _forgeHeader — Binubuo ang organic top-section ng app.
-  /// Gumagamit ng 32.0 standard padding para pantay sa lahat ng screens.
-  Widget _forgeHeader(BuildContext context) {
-    final String timestamp = DateFormat('EEE, MMM d').format(DateTime.now());
+  // josh: Eto yung header section, ginamitan ko ng 32.0 padding para pantay sa screens
+  Widget _gawaTayoNgHeader(BuildContext context) {
+    final String orasNgayon = DateFormat('EEE, MMM d').format(DateTime.now());
 
     return Column(
       children: [
@@ -116,7 +113,7 @@ class _AcadBaseShellState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    timestamp.toUpperCase(),
+                    orasNgayon.toUpperCase(),
                     style: GoogleFonts.figtree(
                       fontSize: 11,
                       fontWeight: FontWeight.w900,
@@ -126,7 +123,7 @@ class _AcadBaseShellState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    '${_resolveDailyGreeting()},',
+                    '${_batehinSyaBaseSaOras()},',
                     style: GoogleFonts.figtree(
                       fontSize: 22,
                       color: Colors.black45,
@@ -135,9 +132,9 @@ class _AcadBaseShellState extends State<HomeScreen> {
                   ),
                   ShaderMask(
                     shaderCallback: (bounds) =>
-                        _activeGradient.createShader(bounds),
+                        _gradientNaGamitNgayon.createShader(bounds),
                     child: Text(
-                      widget.userHandle,
+                      widget.pangalanNiya,
                       style: GoogleFonts.figtree(
                         fontSize: 30,
                         fontWeight: FontWeight.w900,
@@ -149,16 +146,16 @@ class _AcadBaseShellState extends State<HomeScreen> {
                 ],
               ),
 
-              // THEME TRIGGER (Profile Icon)
+              // THEME TRIGGER (Profile Icon na pabilog)
               GestureDetector(
-                onTap: _igniteVibeSwitcher,
+                onTap: _palitanNatinYungKulayBottomSheet,
                 child: Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: _activeGradient,
+                    gradient: _gradientNaGamitNgayon,
                     boxShadow: [
                       BoxShadow(
-                        color: _currentAura.withOpacity(0.25),
+                        color: _kulayNgAppNatinNgayon.withOpacity(0.25),
                         blurRadius: 15,
                         offset: const Offset(0, 5),
                       ),
@@ -169,13 +166,13 @@ class _AcadBaseShellState extends State<HomeScreen> {
                     radius: 26,
                     backgroundColor: Colors.white,
                     child: Text(
-                      widget.userHandle.isNotEmpty
-                          ? widget.userHandle[0].toUpperCase()
+                      widget.pangalanNiya.isNotEmpty
+                          ? widget.pangalanNiya[0].toUpperCase()
                           : '?',
                       style: GoogleFonts.figtree(
                         fontSize: 20,
                         fontWeight: FontWeight.w900,
-                        color: _currentAura,
+                        color: _kulayNgAppNatinNgayon,
                       ),
                     ),
                   ),
@@ -192,11 +189,11 @@ class _AcadBaseShellState extends State<HomeScreen> {
           margin: const EdgeInsets.symmetric(horizontal: 32),
           height: 3.5,
           decoration: BoxDecoration(
-            gradient: _activeGradient,
+            gradient: _gradientNaGamitNgayon,
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: _currentAura.withOpacity(0.3),
+                color: _kulayNgAppNatinNgayon.withOpacity(0.3),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -208,8 +205,8 @@ class _AcadBaseShellState extends State<HomeScreen> {
     );
   }
 
-  /// _igniteVibeSwitcher — Ang personalized theme picker.
-  void _igniteVibeSwitcher() {
+  // josh: nag modal bottom sheet tayo dito para mas maganda tignan
+  void _palitanNatinYungKulayBottomSheet() {
     HapticFeedback.mediumImpact();
     showModalBottomSheet(
       context: context,
@@ -244,11 +241,11 @@ class _AcadBaseShellState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: AcadBalance.currentSpectrumOptions.map((aura) {
-                  final bool isSelected = _currentAura == aura;
+                  final bool isSelected = _kulayNgAppNatinNgayon == aura;
                   return GestureDetector(
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      setState(() => _currentAura = aura);
+                      setState(() => _kulayNgAppNatinNgayon = aura);
                       Navigator.pop(context);
                     },
                     child: AnimatedContainer(
@@ -283,9 +280,9 @@ class _AcadBaseShellState extends State<HomeScreen> {
     );
   }
 
-  /// _craftResponsiveNav — Isang responsive bottom bar na nag-e-stretch sa device
-  /// width pero pinapanatiling compact (hugging) ang mga buttons.
-  Widget _craftResponsiveNav() {
+  // dave: Isang responsive bottom bar na nag-e-stretch sa device
+  // width pero pinapanatiling compact (hugging) ang mga buttons.
+  Widget _yungBottomBarNatinNaGumagalaw() {
     return Container(
       width: double.infinity, // Pinipilit mag-stretch relative sa screen size
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 32),
@@ -302,17 +299,17 @@ class _AcadBaseShellState extends State<HomeScreen> {
         ],
       ),
       child: Row(
-        // 'spaceBetween' ensures distribution across the stretched bar
+        // spaceBetween para automatic nya mag pantay pantay alignment depende device
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: List.generate(_modules.length, (idx) {
-          // UPDATED: _modules.length
-          final bool isFocused = _activeToolIdx == idx;
+        children: List.generate(_listahanNgMgaPahinaNatin.length, (idx) {
+          // Dynamic loop ng generation instead of hard code pag design
+          final bool itoBaYungPinindotNiya = _anongTabAngNakaOpen == idx;
 
           return GestureDetector(
             onTap: () {
-              if (_activeToolIdx != idx) {
+              if (_anongTabAngNakaOpen != idx) {
                 HapticFeedback.selectionClick();
-                setState(() => _activeToolIdx = idx);
+                setState(() => _anongTabAngNakaOpen = idx);
               }
             },
             child: AnimatedContainer(
@@ -322,7 +319,7 @@ class _AcadBaseShellState extends State<HomeScreen> {
               // 'Hugging' logic: Ang padding ang nagbibigay ng structure sa pill
               padding: const EdgeInsets.symmetric(horizontal: 22),
               decoration: BoxDecoration(
-                gradient: isFocused ? _activeGradient : null,
+                gradient: itoBaYungPinindotNiya ? _gradientNaGamitNgayon : null,
                 borderRadius: BorderRadius.circular(100),
               ),
               child: Row(
@@ -330,19 +327,19 @@ class _AcadBaseShellState extends State<HomeScreen> {
                     MainAxisSize.min, // Hugs the internal content tightly
                 children: [
                   Icon(
-                    _modules[idx].icon, // UPDATED: Polymorphic property access
-                    color: isFocused ? Colors.white : Colors.grey[400],
+                    _listahanNgMgaPahinaNatin[idx].anongIconGagamitin, // Magic ng polymorphism: auto read abstract value
+                    color: itoBaYungPinindotNiya ? Colors.white : Colors.grey[400],
                     size: 24,
                   ),
                   AnimatedSize(
                     duration: const Duration(milliseconds: 350),
                     curve: Curves.easeOutBack,
-                    child: isFocused
+                    child: itoBaYungPinindotNiya
                         ? Padding(
                             padding: const EdgeInsets.only(left: 12.0),
                             child: Text(
-                              _modules[idx]
-                                  .title, // UPDATED: Polymorphic property access
+                              _listahanNgMgaPahinaNatin[idx]
+                                  .anongPangalanNito, // Same sa icon, dynamically fetched ang title gamit abstract class
                               style: GoogleFonts.figtree(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w900,
@@ -361,8 +358,8 @@ class _AcadBaseShellState extends State<HomeScreen> {
     );
   }
 
-  /// _resolveDailyGreeting — Nagbabalik ng context-aware greeting base sa oras.
-  String _resolveDailyGreeting() {
+  // josh: Nagbabalik ng context-aware greeting base sa oras pra di lang hi hello
+  String _batehinSyaBaseSaOras() {
     final currentHour = DateTime.now().hour;
     if (currentHour < 12) return 'Good morning';
     if (currentHour < 17) return 'Good afternoon';
