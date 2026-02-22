@@ -35,9 +35,10 @@ Team member responsibilities and contributions:
 | Team Member | Role | Responsibilities |
 |-------------|------|------------------|
 | [Aguiluz, Josh Andrei] | Lead Developer | [Defined the ToolModule abstract class; implemented the Polymorphic navigation logic and state management.] |
-| [Camus, Mark Dave] | UI/UX Designer | Created the custom theme system (3 colors); designed the greeting header and consistent spacing/padding across modules. |
-| [Velasquez, Gabrielle Ainshley] | Module Developer | Built the concrete classes for BMI, Expense, and Water modules; implemented the specific business logic for each tool. |
+| [Camus, Mark Dave] | Module Developer | Built the concrete classes for BMI, Expense, and Water modules; implemented the specific business logic for each tool. |
+| [Velasquez, Gabrielle Ainshley] | UI/UX Designer | Created the custom theme system (3 colors); designed the setup, home, and splash screes with consistent spacing/padding across modules. |
 | [Yamaguchi, Mikaella Gabrielle] | Tester/QA & Documentation | Conducted edge-case testing, managed README, screenshots, and the finalized report. |
+| [Yamzon, Jan] | File Reviewer | Rechecked all files, ensuring accuracy and consistency across documentation. |
 
 ---
 
