@@ -4,19 +4,20 @@ A Flutter application implementing clean architecture with a modular toolkit app
 
 ## Group Members
 
-- [ ] Team Member 1
-- [ ] Team Member 2
-- [ ] Team Member 3
-- [ ] Team Member 4
-- [ ] Team Member 5
+- [ ] Aguiluz, Josh Andrei
+- [ ] Camus, Mark Dave
+- [ ] Velasquez, Gabrielle Ainshley
+- [ ] Yamaguchi, Mikaella Gabrielle 
 
 ## Chosen Modules
 
-The following utility modules are included in this application:
+The following utility modules are implemented in this repository and are located under `lib/modules/`:
 
-- [ ] **BMI Calculator** - Calculate Body Mass Index with height and weight inputs
-- [ ] **Study Timer** - Track study sessions with timer functionality
-- [ ] **Grade Calculator** - Calculate weighted grades for courses
+- **BMI Calculator** (`bmi_module.dart`) – computes BMI from height and weight.
+- **Study Timer** (`study_timer_module.dart`) – simple countdown/stopwatch for study sessions.
+- **Grade Calculator** (`grade_calculator_module.dart`) – weighted grade computation for courses.
+
+(Additional tools such as an expense splitter or water tracker were discussed during development but are not part of the current codebase.)
 
 ## Development Checklist
 
@@ -36,8 +37,8 @@ The following utility modules are included in this application:
 ### Prerequisites
 
 - Flutter SDK (latest version recommended)
-- Dart SDK
-- Android Studio / VS Code with Flutter extensions
+- Dart SDK (bundled with Flutter)
+- Android Studio / VS Code with Flutter plugins
 
 ### Installation
 
@@ -72,31 +73,34 @@ flutter build apk --release
 
 ## Architecture
 
-This project follows clean architecture principles:
+This project uses a lightweight modular structure with an abstract base class enabling polymorphic navigation. Key components:
 
 ```
 lib/
-├── main.dart                 # App entry point
+├── main.dart                  # App entry point, wraps AppThemeState
 ├── core/
-│   ├── tool_module.dart     # Abstract ToolModule class
-│   └── app_theme.dart       # Theme management
+│   ├── tool_module.dart       # Abstract base class for each utility module
+│   └── app_theme.dart         # Theme colors, gradients, and AppThemeState
 ├── screens/
-│   ├── setup_screen.dart    # User personalization
-│   └── home_screen.dart     # Main screen with modules
+│   ├── setup_screen.dart      # Initial personalization (name + color)
+│   └── home_screen.dart       # BottomNavigationBar and module router
 └── modules/
-    ├── bmi_module.dart      # BMI Calculator
-    ├── study_timer_module.dart  # Study Timer
-    └── grade_calculator_module.dart  # Grade Calculator
+    ├── bmi_module.dart        # BMI calculator implementation
+    ├── study_timer_module.dart# Study timer implementation
+    └── grade_calculator_module.dart # Grade calculator implementation
 ```
+
+Each module implements `Widget buildBody(BuildContext)` so that `BuildContext` and theme data flow naturally. State is managed locally with `StatefulWidget` and `setState()`. The app uses `google_fonts` and other packages declared in `pubspec.yaml`.
 
 ## Theme Colors
 
-The app includes 3 preset theme colors:
-- **Blue** (#2196F3)
-- **Green** (#4CAF50)
-- **Purple** (#9C27B0)
+Colors are defined in `lib/core/app_theme.dart` and accessed through the `AcadBalance` helper class. On the setup screen, users can choose from three preset palettes:
 
-Users can select their preferred color during initial setup.
+- **Cyan Mist** (`AcadBalance.hazeCyan` / gradient to `driftAzure`)
+- **Solar Flare** (`AcadBalance.flareSolar` / gradient to `pulseCoral`)
+- **Cosmic Purple** (`AcadBalance.glowNebula` / gradient to `voidIndigo`)
+
+During the initial setup, users choose a primary color and a display name. These choices are shared across the app using a custom `InheritedWidget` called `AppThemeState`.
 
 ## License
 
