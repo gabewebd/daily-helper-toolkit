@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../core/app_theme.dart'; 
+import '../core/app_theme.dart';
 import '../core/tool_module.dart';
 
-// INSTRUCTION (Rubric): [Step 2] Concrete Tool Module implementation
+// Ins: Step 2 Tool Module
 class StudyTimerModule extends ToolModule {
   @override
   String get title => 'Study Timer';
@@ -26,14 +26,14 @@ class StudyTimerBody extends StatefulWidget {
 }
 
 class _StudyTimerBodyState extends State<StudyTimerBody> {
-  // INSTRUCTION (Rubric): [Step 3] Encapsulated state logic
+  // Ins: Step 3 Encapsulated
   double _selectedMinutes = 25.0;
   int _secondsRemaining = 25 * 60;
   bool _isRunning = false;
   Timer? _timer;
   final List<String> _completedSessions = [];
 
-  // INSTRUCTION (Rubric): [Step 3] Controlled update methods
+  // Ins: Step 3 update methods
   void _toggleTimer() {
     if (_isRunning) {
       _timer?.cancel();
@@ -52,6 +52,7 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
           if (_secondsRemaining > 0) {
             _secondsRemaining--;
           } else {
+            // Pag tapos na yung oras
             _timer?.cancel();
             _isRunning = false;
             _logSession();
@@ -61,17 +62,17 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
     }
   }
 
+  // Pag natapos ni user, add natin sa history nya
   void _logSession() {
     if (!mounted) return;
-
-    // HUMANIZE: You can change this success message to something more fun or personalized!
-    final sessionString = "Completed ${_selectedMinutes.toInt()} min session";
+    int mins = _selectedMinutes.toInt();
+    String minLabel = mins == 1 ? "minute" : "minutes";
+    final sessionString = "Completed! $mins $minLabel";
     _completedSessions.insert(0, sessionString);
-
-    // HUMANIZE: Change "Session done! Galing!" to any friendly Taglish/English phrase you like.
     _showSnackBar("Session completed! Great work!");
   }
 
+  // Clear / reset button logic
   void _resetTimer() {
     _timer?.cancel();
     setState(() {
@@ -80,7 +81,7 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
     });
   }
 
-  // INSTRUCTION (Rubric): [Step 4] SnackBar for feedback
+  // Ins: Step 4 SnackBar error
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -119,9 +120,8 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 12),
-            // HUMANIZE: Feel free to change the header text to "Pomodoro", "Grind Time", etc.
             Text(
-              'Focus Timer',
+              'Pomodoro',
               style: GoogleFonts.figtree(
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
@@ -138,7 +138,11 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(32),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 24, offset: const Offset(0, 8)),
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
                 ],
               ),
               child: Column(
@@ -151,22 +155,25 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
                         width: 220,
                         height: 220,
                         child: CircularProgressIndicator(
-                          value: _isRunning 
-                            ? _secondsRemaining / (_selectedMinutes * 60) 
-                            : 1.0,
+                          value: _isRunning
+                              ? _secondsRemaining / (_selectedMinutes * 60)
+                              : 1.0,
                           strokeWidth: 8,
                           color: themeColor,
                           backgroundColor: themeColor.withOpacity(0.15),
                         ),
                       ),
                       ShaderMask(
-                        shaderCallback: (bounds) => AcadBalance.mapSpectrumToGradient(themeColor).createShader(bounds),
+                        shaderCallback: (bounds) =>
+                            AcadBalance.mapSpectrumToGradient(
+                              themeColor,
+                            ).createShader(bounds),
                         child: Text(
                           _timeString,
                           style: GoogleFonts.figtree(
-                            fontSize: 64, 
+                            fontSize: 64,
                             fontWeight: FontWeight.w900,
-                            color: Colors.white, // White required for ShaderMask
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -174,19 +181,22 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
                   ),
                   const SizedBox(height: 48),
 
-                  // INSTRUCTION (Rubric): [Step 4] Slider requirement fulfilled!
+                  // Ins: Step 4 Slider
                   Text(
                     'Set Duration: ${_selectedMinutes.toInt()} mins',
-                    style: GoogleFonts.figtree(fontWeight: FontWeight.w800, color: Colors.black54),
+                    style: GoogleFonts.figtree(
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black54,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: Slider(
                       value: _selectedMinutes,
-                      min: 1.0, // Fixed: 1 min option
+                      min: 1.0,
                       max: 60.0,
-                      divisions: 59, // Fixed: 1 minute increments
+                      divisions: 59,
                       activeColor: themeColor,
                       inactiveColor: Colors.grey.shade200,
                       onChanged: _isRunning
@@ -204,7 +214,7 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
             ),
             const SizedBox(height: 24),
 
-            // FIX: Stacked buttons take full width instead of using Row + Expanded.
+            // Mga Action Buttons
             Row(
               children: [
                 Expanded(
@@ -214,11 +224,20 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
                     child: FilledButton.icon(
                       onPressed: _toggleTimer,
                       icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow),
-                      // HUMANIZE: Button labels can be customized
-                      label: Text(_isRunning ? 'PAUSE' : 'START FOCUS', style: GoogleFonts.figtree(fontWeight: FontWeight.w800, letterSpacing: 1.0)),
+                      label: Text(
+                        _isRunning ? 'PAUSE' : 'START FOCUS',
+                        style: GoogleFonts.figtree(
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
                       style: FilledButton.styleFrom(
-                        backgroundColor: _isRunning ? Colors.black87 : themeColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        backgroundColor: _isRunning
+                            ? Colors.black87
+                            : themeColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                         elevation: 0,
                       ),
                     ),
@@ -229,14 +248,16 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
                   flex: 1,
                   child: SizedBox(
                     height: 56,
-                    // Simplified Flat Reset Button
+                    //  Flat Reset Button
                     child: FilledButton(
                       onPressed: _resetTimer,
                       style: FilledButton.styleFrom(
                         backgroundColor: Colors.grey.shade200,
                         foregroundColor: Colors.black87,
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
                       child: const Icon(Icons.refresh),
                     ),
@@ -246,7 +267,7 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
             ),
             const SizedBox(height: 40),
 
-            // INSTRUCTION (Rubric): [Step 4] Session History requirement fulfilled
+            // Ins: Step 4ListView/mapping
             if (_completedSessions.isNotEmpty) ...[
               Text(
                 'Session History',
@@ -259,15 +280,18 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
               const SizedBox(height: 16),
             ],
 
-            // FIX: Directly mapping the list items into the Column prevents unbounded height crashes.
+            //  loop ng map
             if (_completedSessions.isEmpty)
               Center(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 20.0, bottom: 40.0),
-                  // HUMANIZE: Change this empty state text to match your app's personality
                   child: Text(
                     "No sessions yet. Time to focus!",
-                    style: GoogleFonts.figtree(color: Colors.black26, fontWeight: FontWeight.w600, fontSize: 16),
+                    style: GoogleFonts.figtree(
+                      color: Colors.black26,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               )
@@ -275,12 +299,19 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
               ..._completedSessions.map(
                 (session) => Container(
                   margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 18,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
                     ],
                   ),
                   child: Row(
@@ -289,14 +320,18 @@ class _StudyTimerBodyState extends State<StudyTimerBody> {
                       const SizedBox(width: 16),
                       Text(
                         session,
-                        style: GoogleFonts.figtree(fontWeight: FontWeight.w700, fontSize: 15, color: Colors.black87),
+                        style: GoogleFonts.figtree(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: Colors.black87,
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
 
-            const SizedBox(height: 60), // Breathing room at the bottom
+            const SizedBox(height: 60),
           ],
         ),
       ),

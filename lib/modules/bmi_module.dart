@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/tool_module.dart';
 
-// RUBRIC: [Step 2] Concrete Tool Module
+// Ins: Step 2 Tool Module
+// Extend the ToolModule
 class BmiModule extends ToolModule {
   @override
   String get title => 'BMI Checker';
@@ -24,7 +25,7 @@ class BmiBody extends StatefulWidget {
 }
 
 class _BmiBodyState extends State<BmiBody> {
-  // RUBRIC: [Step 3] Encapsulated state
+  // Ins: Encapsulated state
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
 
@@ -32,41 +33,46 @@ class _BmiBodyState extends State<BmiBody> {
   String _bmiCategory = "";
   Color _categoryColor = Colors.grey;
 
-  // RUBRIC: [Step 3] Controlled computation method
+  // Ins: Step 3 Controlled computation method
+  // Main logic para sa bmi.
   void _calculateBmi() {
     final String weightStr = _weightController.text.trim();
     final String heightStr = _heightController.text.trim();
 
-    // RUBRIC: [UI/UX] Handle invalid input gracefully (Empty)
+    // INS: UI/UX
+    // Pag walang nilagay si user
     if (weightStr.isEmpty || heightStr.isEmpty) {
-      _showErrorSnackBar("Please enter both weight and height.");
+      _showErrorSnackBar("Oops! Paki-lagay muna yung weight at height mo.");
       return;
     }
 
     final double? weight = double.tryParse(weightStr);
     final double? heightCm = double.tryParse(heightStr);
 
-    // RUBRIC: [UI/UX] Non-numeric and logic validations
+    // Ins: Nonnumeric/logic validations
+    // Check if numbers
     if (weight == null || heightCm == null || weight <= 0 || heightCm <= 0) {
-      _showErrorSnackBar("Invalid input. Please enter valid positive numbers.");
+      _showErrorSnackBar("Mali yata yung input. Valid numbers lang po sana.");
       return;
     }
 
+    // Convertion ng cm to meters
     double heightMeters = heightCm / 100;
 
-    // RUBRIC: [UI/UX] Division by zero safety
+    // Ins: Division by zero
     if (heightMeters == 0) return;
 
     double bmi = weight / (heightMeters * heightMeters);
 
     setState(() {
       _bmiResult = bmi;
-      // HUMANIZE: Pwede mong gawing Taglish to like "Medyo Underweight"
+
+      // ito mga results
       if (bmi < 18.5) {
         _bmiCategory = "Underweight";
         _categoryColor = Colors.blue;
       } else if (bmi >= 18.5 && bmi <= 24.9) {
-        _bmiCategory = "Normal Weight";
+        _bmiCategory = "Normal";
         _categoryColor = Colors.green;
       } else if (bmi >= 25 && bmi <= 29.9) {
         _bmiCategory = "Overweight";
@@ -77,10 +83,11 @@ class _BmiBodyState extends State<BmiBody> {
       }
     });
 
+    // closing
     FocusScope.of(context).unfocus();
   }
 
-  // RUBRIC: [Step 4] SnackBar for feedback/errors
+  // Ins: Step 4 SnackBar error
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -107,9 +114,8 @@ class _BmiBodyState extends State<BmiBody> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 12),
-            // HUMANIZE: Change the header
             Text(
-              'BMI Checker',
+              ' BMI Checker!',
               style: GoogleFonts.figtree(
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
@@ -125,38 +131,68 @@ class _BmiBodyState extends State<BmiBody> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 24, offset: const Offset(0, 8)),
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
                 ],
               ),
               child: Column(
                 children: [
-                  // RUBRIC: [Step 4] TextField with Controllers
+                  // Ins: Step 4 TextField
                   TextField(
                     controller: _weightController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    style: GoogleFonts.figtree(fontWeight: FontWeight.w600, fontSize: 16),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    style: GoogleFonts.figtree(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Weight (kg)',
-                      hintStyle: GoogleFonts.figtree(color: Colors.grey.shade400),
-                      prefixIcon: Icon(Icons.scale, color: Colors.grey.shade400),
+                      hintStyle: GoogleFonts.figtree(
+                        color: Colors.grey.shade400,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.scale,
+                        color: Colors.grey.shade400,
+                      ),
                       filled: true,
                       fillColor: Colors.grey.shade50,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
                       contentPadding: const EdgeInsets.symmetric(vertical: 18),
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: _heightController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    style: GoogleFonts.figtree(fontWeight: FontWeight.w600, fontSize: 16),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    style: GoogleFonts.figtree(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Height (cm)',
-                      hintStyle: GoogleFonts.figtree(color: Colors.grey.shade400),
-                      prefixIcon: Icon(Icons.height, color: Colors.grey.shade400),
+                      hintStyle: GoogleFonts.figtree(
+                        color: Colors.grey.shade400,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.height,
+                        color: Colors.grey.shade400,
+                      ),
                       filled: true,
                       fillColor: Colors.grey.shade50,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
                       contentPadding: const EdgeInsets.symmetric(vertical: 18),
                     ),
                   ),
@@ -164,24 +200,29 @@ class _BmiBodyState extends State<BmiBody> {
                   SizedBox(
                     width: double.infinity,
                     height: 56,
-                    // RUBRIC: [Step 4] FilledButton
+                    // Ins: Step 4 FilledButton
                     child: FilledButton(
                       onPressed: _calculateBmi,
                       style: FilledButton.styleFrom(
                         backgroundColor: themeColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                         elevation: 0,
                       ),
                       child: Text(
-                        'CHECK BMI',
-                        style: GoogleFonts.figtree(fontWeight: FontWeight.w800, letterSpacing: 1.0, fontSize: 15),
+                        'CALCULATE',
+                        style: GoogleFonts.figtree(
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.0,
+                          fontSize: 15,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-
             if (_bmiResult != null) ...[
               const SizedBox(height: 32),
               Container(
@@ -191,9 +232,16 @@ class _BmiBodyState extends State<BmiBody> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
-                    BoxShadow(color: _categoryColor.withOpacity(0.05), blurRadius: 24, offset: const Offset(0, 10)),
+                    BoxShadow(
+                      color: _categoryColor.withOpacity(0.05),
+                      blurRadius: 24,
+                      offset: const Offset(0, 10),
+                    ),
                   ],
-                  border: Border.all(color: _categoryColor.withOpacity(0.4), width: 2),
+                  border: Border.all(
+                    color: _categoryColor.withOpacity(0.4),
+                    width: 2,
+                  ),
                 ),
                 child: Column(
                   children: [
@@ -219,7 +267,10 @@ class _BmiBodyState extends State<BmiBody> {
                     ),
                     const SizedBox(height: 16),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: _categoryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
@@ -231,6 +282,7 @@ class _BmiBodyState extends State<BmiBody> {
                           color: _categoryColor,
                           letterSpacing: 1.2,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ],

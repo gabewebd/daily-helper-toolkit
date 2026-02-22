@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/tool_module.dart';
 
-// RUBRIC: [Step 2] Concrete Tool Module (Inheritance)
+// Ins: Step 2 Tool Module
 class GradeCalculatorModule extends ToolModule {
   @override
   String get title => 'Grade Calculator';
@@ -23,6 +23,7 @@ class GradeCalculatorBody extends StatefulWidget {
   State<GradeCalculatorBody> createState() => _GradeCalculatorBodyState();
 }
 
+// para ma store yung data per subject
 class _SubjectEntry {
   final String name;
   final double units;
@@ -31,38 +32,37 @@ class _SubjectEntry {
 }
 
 class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
-  // RUBRIC: [Step 3] Encapsulation of Tool State. Private variables hidden from outside.
+  // Ins: Step 3 Encapsulation ng Tool State
   final List<_SubjectEntry> _subjects = [];
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _unitsController = TextEditingController();
   final TextEditingController _gradeController = TextEditingController();
 
-  // RUBRIC: [Step 3] Controlled update methods.
+  // Ins: Step 3 mga Controlled update methods.
+  // List ng Subjects.
   void _addSubject() {
     final name = _nameController.text.trim();
     final unitsText = _unitsController.text.trim();
     final gradeText = _gradeController.text.trim();
 
-    // RUBRIC: [UI/UX] Handle invalid input gracefully (Empty input)
+    // Ins: UI/UX
     if (name.isEmpty || unitsText.isEmpty || gradeText.isEmpty) {
-      // HUMANIZE: Pwede mong palitan yung error message sa Taglish or your own style.
-      _showError('Please fill in all fields before adding a subject.');
+      _showError('Please fill in all fields before adding a subject');
       return;
     }
 
     final units = double.tryParse(unitsText);
     final grade = double.tryParse(gradeText);
 
-    // RUBRIC: [UI/UX] Non-numeric input handling
+    // Ins: UI/UX Nonnumeric input
     if (units == null || units <= 0) {
-      _showError('Invalid units. Please enter a number greater than 0.');
+      _showError('Invalid units. It should be greater than 0 yan.');
       return;
     }
     if (grade == null || grade < 1.0 || grade > 5.0) {
-      _showError('Invalid grade. Please enter a grade between 1.0 and 5.0.');
+      _showError('Wrong grade input!. between 1.0 at 5.0 only.');
       return;
     }
-
     setState(() {
       _subjects.add(_SubjectEntry(name, units, grade));
     });
@@ -73,9 +73,10 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
     FocusScope.of(context).unfocus();
   }
 
+  // main logic para makuha yung GWA
   void _computeGWA() {
     if (_subjects.isEmpty) {
-      _showError('Add at least one subject to calculate GWA.');
+      _showError('Add at least one subject.');
       return;
     }
 
@@ -87,11 +88,9 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
       totalUnits += subject.units;
     }
 
-    // RUBRIC: [UI/UX] Division by zero cases handled
+    // Ins: UI/UX Division by zero
     double finalGWA = totalUnits == 0 ? 0.0 : totalWeightedSum / totalUnits;
-
-    // HUMANIZE: Pwede mong ibahin yung status names
-    String status = finalGWA <= 3.0 ? "Good Standing" : "Warning";
+    String status = finalGWA <= 3.0 ? "Good Standing!" : "Warning!";
 
     _showResultDialog(finalGWA, totalUnits, status);
   }
@@ -103,7 +102,7 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
     _gradeController.clear();
   }
 
-  // RUBRIC: [Step 4] SnackBar for feedback/errors
+  // Ins: Step 4 SnackBar Error
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -118,18 +117,17 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
     );
   }
 
-  // RUBRIC: [Step 4] Dialog for output breakdown
   void _showResultDialog(double gwa, double totalUnits, String status) {
     final themeColor = Theme.of(context).primaryColor;
-    
-    // Determine color based on GWA status
     final statusColor = gwa <= 3.0 ? Colors.green : Colors.redAccent;
-    
+
     showDialog(
       context: context,
       builder: (context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(32),
+          ),
           backgroundColor: Colors.white,
           elevation: 0,
           child: Padding(
@@ -147,8 +145,13 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'YOUR GWA',
-                  style: GoogleFonts.figtree(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.black45, letterSpacing: 2.0),
+                  'Your GWA!',
+                  style: GoogleFonts.figtree(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black45,
+                    letterSpacing: 2.0,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -163,25 +166,38 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                 const SizedBox(height: 16),
                 Text(
                   'Total Units: ${totalUnits.toInt()}',
-                  style: GoogleFonts.figtree(fontSize: 16, color: Colors.black54, fontWeight: FontWeight.w600),
+                  style: GoogleFonts.figtree(
+                    fontSize: 16,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 20),
-                
+
                 // Outlined Status Container
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: statusColor.withOpacity(0.05),
-                    border: Border.all(color: statusColor.withOpacity(0.5), width: 2),
+                    border: Border.all(
+                      color: statusColor.withOpacity(0.5),
+                      width: 2,
+                    ),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    'Status: $status',
-                    style: GoogleFonts.figtree(fontWeight: FontWeight.w800, color: statusColor),
+                    'Result: $status',
+                    style: GoogleFonts.figtree(
+                      fontWeight: FontWeight.w800,
+                      color: statusColor,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),
-                
+
                 // Simplified Close Button
                 Align(
                   alignment: Alignment.centerRight,
@@ -190,9 +206,9 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                     child: Text(
                       'Close',
                       style: GoogleFonts.figtree(
-                        fontWeight: FontWeight.w800, 
-                        fontSize: 16, 
-                        color: themeColor
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                        color: themeColor,
                       ),
                     ),
                   ),
@@ -208,8 +224,6 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
   @override
   Widget build(BuildContext context) {
     final themeColor = Theme.of(context).primaryColor;
-
-    // ADDED FIX: Changed Column to ListView para hindi mag-overflow pag lumabas ang keyboard
     return ListView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
@@ -217,9 +231,8 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // HUMANIZE: Change title header
             Text(
-              'Grade Calculator',
+              'Grade Calculator!',
               style: GoogleFonts.figtree(
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
@@ -228,35 +241,49 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.refresh, color: Colors.grey.shade400), 
-              onPressed: _reset
+              icon: Icon(Icons.refresh, color: Colors.grey.shade400),
+              onPressed: _reset,
+              tooltip: 'Clear All',
             ),
           ],
         ),
         const SizedBox(height: 24),
 
-        // RUBRIC: [Step 4] Card & TextField usage
+        // Ins: Step 4 Card/TextField
         Container(
           padding: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 24, offset: const Offset(0, 8)),
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
             ],
           ),
           child: Column(
             children: [
               TextField(
                 controller: _nameController,
-                style: GoogleFonts.figtree(fontWeight: FontWeight.w600, fontSize: 16),
+                style: GoogleFonts.figtree(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Subject (e.g., MATH 101)',
                   hintStyle: GoogleFonts.figtree(color: Colors.grey.shade400),
                   filled: true,
                   fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 18,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -265,15 +292,28 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                   Expanded(
                     child: TextField(
                       controller: _unitsController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      style: GoogleFonts.figtree(fontWeight: FontWeight.w600, fontSize: 16),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      style: GoogleFonts.figtree(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Units',
-                        hintStyle: GoogleFonts.figtree(color: Colors.grey.shade400),
+                        hintStyle: GoogleFonts.figtree(
+                          color: Colors.grey.shade400,
+                        ),
                         filled: true,
                         fillColor: Colors.grey.shade50,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 18,
+                        ),
                       ),
                     ),
                   ),
@@ -281,15 +321,28 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                   Expanded(
                     child: TextField(
                       controller: _gradeController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      style: GoogleFonts.figtree(fontWeight: FontWeight.w600, fontSize: 16),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      style: GoogleFonts.figtree(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Grade',
-                        hintStyle: GoogleFonts.figtree(color: Colors.grey.shade400),
+                        hintStyle: GoogleFonts.figtree(
+                          color: Colors.grey.shade400,
+                        ),
                         filled: true,
                         fillColor: Colors.grey.shade50,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 18,
+                        ),
                       ),
                     ),
                   ),
@@ -299,17 +352,25 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
               SizedBox(
                 width: double.infinity,
                 height: 56,
-                // RUBRIC: [Step 4] FilledButton (Solid Light Tint)
+                // Ins: Step 4 FilledButton
                 child: FilledButton.icon(
                   style: FilledButton.styleFrom(
                     backgroundColor: themeColor.withOpacity(0.1),
                     foregroundColor: themeColor,
                     elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
                   onPressed: _addSubject,
                   icon: const Icon(Icons.add),
-                  label: Text('ADD SUBJECT', style: GoogleFonts.figtree(fontWeight: FontWeight.w800, letterSpacing: 1.0)),
+                  label: Text(
+                    'ADD SUBJECT',
+                    style: GoogleFonts.figtree(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -317,10 +378,10 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
         ),
         const SizedBox(height: 32),
 
-        // RUBRIC: [Step 4] ListView for output breakdown
+        // Ins: Step 4 ListView output breakdown
         if (_subjects.isNotEmpty) ...[
           Text(
-            'Subjects Added',
+            'Inputted Subjects',
             style: GoogleFonts.figtree(
               fontWeight: FontWeight.w800,
               color: Colors.black45,
@@ -330,14 +391,17 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
           const SizedBox(height: 16),
         ],
 
-        // ADDED FIX: Pinalitan ng conditional render at shrinkWrap ang Expanded para gumana sa loob ng ListView
         if (_subjects.isEmpty)
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 32.0),
               child: Text(
-                'No subjects added yet.',
-                style: GoogleFonts.figtree(color: Colors.black26, fontWeight: FontWeight.w600, fontSize: 16),
+                'No subjects yet! Please input above',
+                style: GoogleFonts.figtree(
+                  color: Colors.black26,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
               ),
             ),
           )
@@ -350,12 +414,19 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
               final subject = _subjects[index];
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
                   ],
                 ),
                 child: Row(
@@ -366,17 +437,25 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
                       children: [
                         Text(
                           subject.name,
-                          style: GoogleFonts.figtree(fontWeight: FontWeight.w800, fontSize: 16, color: Colors.black87),
+                          style: GoogleFonts.figtree(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'Units: ${subject.units.toInt()}',
-                          style: GoogleFonts.figtree(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.grey.shade500),
+                          style: GoogleFonts.figtree(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            color: Colors.grey.shade500,
+                          ),
                         ),
                       ],
                     ),
                     Text(
-                      subject.grade.toStringAsFixed(1),
+                      subject.grade.toStringAsFixed(2),
                       style: GoogleFonts.figtree(
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
@@ -388,21 +467,31 @@ class _GradeCalculatorBodyState extends State<GradeCalculatorBody> {
               );
             },
           ),
-        
+
         if (_subjects.isNotEmpty) ...[
           const SizedBox(height: 32),
-          // RUBRIC: [Step 4] ElevatedButton
+          // Ins: Step 4 ElevatedButton
           SizedBox(
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: themeColor,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 elevation: 0,
               ),
               onPressed: _computeGWA,
-              child: Text('CALCULATE GWA', style: GoogleFonts.figtree(fontWeight: FontWeight.w800, letterSpacing: 1.0, fontSize: 15, color: Colors.white)),
+              child: Text(
+                'COMPUTE GWA',
+                style: GoogleFonts.figtree(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.0,
+                  fontSize: 15,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 48),
